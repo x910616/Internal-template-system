@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>電銷門號組模板系統 - 智生活 SmaDay</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+        body { 
+            font-family: 'Noto Sans TC', sans-serif; 
+            background-color: #f8fafc;
+        }
+        .custom-shadow {
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+        }
+        .rounded-input { border-radius: 12px; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .mode-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 14px;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            white-space: nowrap;
+        }
+        .mode-btn.active {
+            background-color: #14ccb9;
+            color: white;
+            box-shadow: 0 4px 10px rgba(20, 204, 185, 0.3);
+            border-color: transparent;
+        }
+        .mode-btn.inactive-light { background-color: white; color: #475569; border-color: #e2e8f0; }
+        .mode-btn.inactive-dark { background-color: #334155; color: white; border-color: #1e293b; }
+        .mode-btn.inactive-gray { background-color: #e2e8f0; color: #475569; border-color: #cbd5e1; }
+
+        .toggle-item {
+            flex: 1;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 15px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .toggle-item.selected {
+            background-color: #14ccb9;
+            color: white;
+            box-shadow: 0 4px 12px rgba(20, 204, 185, 0.3);
+            border-color: #14ccb9;
+        }
+        .toggle-item.unselected {
+            background-color: white;
+            color: #94a3b8;
+            border-color: #e2e8f0;
+        }
+
+        .preview-content {
+            animation: subtle-pulse 0.2s ease-out;
+        }
+        @keyframes subtle-pulse {
+            0% { opacity: 0.95; transform: scale(0.998); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo } = React;
+
+        const Icon = ({ name, size = 18, className = "" }) => {
+            const icons = {
+                "truck": <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2m15-5h-3m3 3h-3m3 3h-3M17 14l3-3 3 3M17 17l3 3 3-3M5 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm12 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />,
+                "camera": <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />,
+                "home": <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10" />,
+                "image": (
+                    <React.Fragment>
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                    </React.Fragment>
+                ),
+                "map-pin": (
+                    <React.Fragment>
+                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                        <circle cx="12" cy="10" r="3" />
+                    </React.Fragment>
+                ),
+                "mail": (
+                    <React.Fragment>
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                        <polyline points="22,6 12,13 2,6" />
+                    </React.Fragment>
+                ),
+                "user": (
+                    <React.Fragment>
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                    </React.Fragment>
+                ),
+                "trash-2": <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-6 5v6m4-6v6" />,
+                "chevron-down": <polyline points="6 9 12 15 18 9" />,
+                "wifi": <path d="M5 13a10 10 0 0 1 14 0M8.5 16.5a5 5 0 0 1 7 0M12 20h.01" />,
+                "clock": <React.Fragment><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></React.Fragment>
+            };
+            return (
+                <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                    {icons[name] || <circle cx="12" cy="12" r="10" />}
+                </svg>
+            );
+        };
+
+        const initialPlanState = {
+            telecom: '', telecomCustom: '', contractType: '', contractTypeCustom: '',
+            planAmount: '', planAmountCustom: '', period: '30', periodCustom: '',
+            networkMonth: '24', amount: '0', simCard: '實體卡', simNumber: '', orderId: ''
+        };
+
+        const initialFormState = {
+            orderId: '', prepayId: '', customerName: '', customerId: '', 
+            buildingName: '', region: '', regionCustom: '', 
+            deliveryDate: '', activationDate: '', 
+            pickupHour: '12', pickupMinute: '00',
+            isSelfPickupPhoto: '否', isNeedTermination: '否', staff: '', staffCustom: '',
+            ispMonths: '24', ispMonthsCustom: '', refundAmount: '8900', refundAmountCustom: '',
+            addressType: '訂單地址', address: '',
+            plans: [{ ...initialPlanState }]
+        };
+
+        function App() {
+            const [activeCategory, setActiveCategory] = useState('dispatch');
+            const [mode, setMode] = useState('pure_delivery');
+            const [copied, setCopied] = useState(false);
+            const [allFormData, setAllFormData] = useState({
+                pure_delivery: { ...initialFormState },
+                delivery_photo: { ...initialFormState },
+                install_delivery: { ...initialFormState },
+                install_photo_new: { ...initialFormState },
+                install_delivery_photo: { ...initialFormState },
+                self_pickup: { ...initialFormState },
+                mail_card: { ...initialFormState },
+                cht_renew: { ...initialFormState },
+                isp_renew: { ...initialFormState },
+                double_refund: { ...initialFormState },
+            });
+
+            const currentData = allFormData[mode];
+            const isFinanceMode = mode === 'isp_renew' || mode === 'double_refund';
+
+            const options = {
+                // 已更新卓湘雲為黃昱潔
+                staff: ["中和-何心渝", "淡水-白宜珊", "汐止-黃昱潔", "桃園-李佩珊", "竹苗-范貞昱", "台中-陳均柔", "電銷-沈姵妤", "高雄-吳佳蓉", "台南-蔡泫樺", "其他"],
+                telecom: ["中華", "遠傳", "其他"],
+                contractType: ["攜碼", "新辦", "續約", "其他"],
+                planAmount: ["399", "599", "699", "799", "999", "1399", "其他"],
+                period: ["30", "24", "其他"],
+                financeRegions: ["汐止", "台北", "桃園", "新竹", "台中", "高雄", "台南", "其他"],
+                networkMonths: ["3", "4", "6", "8", "9", "12", "13", "14", "16", "19", "24", "30", "其他"],
+                financeMonths: ["3", "4", "6", "8", "9", "12", "13", "14", "16", "19", "24", "24+1", "24+2", "30", "其他"],
+                refundAmounts: ["8900", "6000", "5400", "其他"],
+                hours: Array.from({length: 24}, (_, i) => i.toString().padStart(2, '0')),
+                minutes: ["00", "15", "30", "45"],
+            };
+
+            const calculateAutoAmount = (plan) => {
+                const month = plan.networkMonth;
+                const telecom = plan.telecom;
+                const type = plan.contractType;
+                const amount = plan.planAmount;
+                
+                const zeroMonths = ["3", "4", "8", "9", "13", "16", "19", "30"];
+                if (zeroMonths.includes(month)) return "0";
+
+                const match24 = month === "24";
+                const match14 = month === "14";
+                const match12 = month === "12";
+
+                if (match24) {
+                    if (telecom === "中華") {
+                        if (type === "新辦") {
+                            if (amount === "599") return "6400";
+                            if (amount === "699") return "7900";
+                            if (amount === "799") return "3900";
+                            if (amount === "999") return "1900";
+                            if (amount === "1399") return "0";
+                        } else if (type === "攜碼") {
+                            if (amount === "599") return "5900";
+                            if (amount === "699") return "7400";
+                            if (amount === "799") return "2900";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        }
+                    } else if (telecom === "遠傳") {
+                        if (type === "新辦") {
+                            if (amount === "399") return "7900";
+                            if (amount === "599") return "5900";
+                            if (amount === "799") return "3900";
+                            if (amount === "999") return "1900";
+                            if (amount === "1399") return "0";
+                        } else if (type === "攜碼") {
+                            if (amount === "399") return "7400";
+                            if (amount === "599") return "5400";
+                            if (amount === "799") return "2900";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        }
+                    }
+                }
+
+                if (match14) {
+                    if (telecom === "中華") {
+                        if (type === "新辦") {
+                            if (amount === "599") return "3500";
+                            if (amount === "699") return "5000";
+                            if (amount === "799") return "1000";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        } else if (type === "攜碼") {
+                            if (amount === "599") return "3000";
+                            if (amount === "699") return "4500";
+                            if (amount === "799") return "0";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        }
+                    } else if (telecom === "遠傳") {
+                        if (type === "新辦") {
+                            if (amount === "399") return "5000";
+                            if (amount === "599") return "3000";
+                            if (amount === "799") return "1000";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        } else if (type === "攜碼") {
+                            if (amount === "399") return "4500";
+                            if (amount === "599") return "2500";
+                            if (amount === "799") return "0";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        }
+                    }
+                }
+
+                if (match12) {
+                    if (telecom === "中華") {
+                        if (type === "新辦") {
+                            if (amount === "599") return "2900";
+                            if (amount === "699") return "4400";
+                            if (amount === "799") return "400";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        } else if (type === "攜碼") {
+                            if (amount === "599") return "2400";
+                            if (amount === "699") return "3900";
+                            if (amount === "799") return "0";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        }
+                    } else if (telecom === "遠傳") {
+                        if (type === "新辦") {
+                            if (amount === "399") return "4400";
+                            if (amount === "599") return "2400";
+                            if (amount === "799") return "400";
+                            if (amount === "999") return "1900";
+                            if (amount === "1399") return "0";
+                        } else if (type === "攜碼") {
+                            if (amount === "399") return "3900";
+                            if (amount === "599") return "1900";
+                            if (amount === "799") return "0";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        }
+                    }
+                }
+
+                return plan.amount;
+            };
+
+            const handleInputChange = (e) => {
+                const { name, value } = e.target;
+                setAllFormData(prev => ({ ...prev, [mode]: { ...prev[mode], [name]: value } }));
+            };
+
+            const handlePlanChange = (index, e) => {
+                const { name, value } = e.target;
+                setAllFormData(prev => {
+                    const updatedPlans = [...prev[mode].plans];
+                    let updatedPlan = { ...updatedPlans[index], [name]: value };
+                    
+                    if (index === 0 && !isFinanceMode) {
+                        updatedPlan.amount = calculateAutoAmount(updatedPlan);
+                    } else if (index > 0) {
+                        updatedPlan.amount = '0';
+                    }
+                    
+                    updatedPlans[index] = updatedPlan;
+                    return { ...prev, [mode]: { ...prev[mode], plans: updatedPlans } };
+                });
+            };
+
+            const addNewPlan = () => {
+                setAllFormData(prev => ({
+                    ...prev, [mode]: { ...prev[mode], plans: [...prev[mode].plans, { ...initialPlanState, amount: '0' }] }
+                }));
+            };
+
+            const removePlan = (index) => {
+                setAllFormData(prev => ({
+                    ...prev, [mode]: { ...prev[mode], plans: prev[mode].plans.filter((_, i) => i !== index) }
+                }));
+            };
+
+            const summaryText = useMemo(() => {
+                const data = currentData;
+                const fmtDate = (val) => val ? `${parseInt(val.split('-')[1])}/${parseInt(val.split('-')[2])}` : 'X/X';
+                const dateStr = fmtDate(data.deliveryDate);
+                const actDateStr = fmtDate(data.activationDate);
+                const plansSummary = data.plans.map(p => {
+                    const t = p.telecom === '其他' ? p.telecomCustom : p.telecom;
+                    const c = p.contractType === '其他' ? p.contractTypeCustom : p.contractType;
+                    const am = p.planAmount === '其他' ? p.planAmountCustom : p.planAmount;
+                    const pr = p.period === '其他' ? p.periodCustom : p.period;
+                    return isFinanceMode ? `${c || ''}${am || ''}` : `【${t || ''}】${c || ''}${pr || ''}個月 / $${am || ''}`;
+                }).join('、');
+                const sims = data.plans.map(p => p.simNumber).filter(s => s).join('、');
+                const nets = data.plans.map(p => `${p.planAmount || ''}(${p.period || ''})${p.contractType || ''}專案價 家庭上網${p.networkMonth || ''}個月`).join('、');
+                const totalAmount = data.plans.reduce((acc, curr) => acc + (parseInt(curr.amount) || 0), 0);
+                const orderIdStr = isFinanceMode ? data.orderId : data.plans.map(p => p.orderId).filter(id => id).join('、');
+                const staff = (data.staff === '其他' ? data.staffCustom : data.staff || '').split('-')[1] || data.staff;
+
+                const base = `${data.prepayId ? data.prepayId + '(預繳金)\n' : ''}${(!isFinanceMode && mode !== 'cht_renew') ? '▪客戶姓名：' + data.customerName + '\n' : ''}▪訂單編號：${orderIdStr}\n▪資費方案：${plansSummary}\n▪SIM卡：${sims}\n▪網路方案：${nets}\n▪應收金額：${totalAmount}（收款方式：現場不收費）\n▪開通日：${actDateStr}${data.isNeedTermination === '是' ? '(需解約)' : ''}\n▪派案人員：${staff || ''}`;
+
+                switch (mode) {
+                    case 'pure_delivery': return `【備註】請工程於${dateStr}送SIM卡到社區管理室，無須拍照，送達請通知客戶，謝謝！\n\n${base}`;
+                    case 'delivery_photo': return `【備註】請工程於${dateStr}交付SIM卡，需帶易拉寶協助拍照，照片請上傳電銷工程群謝謝！\n\n${base}`;
+                    case 'install_delivery': return `【備註】請工程在${dateStr}裝機當天交付SIM卡，無須拍照，謝謝！\n\n${base}`;
+                    case 'install_photo_new': return `【備註】請工程於${dateStr}裝機當天需帶易拉寶協助拍照，照片請上傳電銷＆工程群謝謝！\n\n${base}`;
+                    case 'install_delivery_photo': return `【備註】請工程於${dateStr}裝機當天交付SIM卡給客戶，需帶易拉寶協助拍照，照片請上傳電銷＆工程群謝謝！\n\n${base}`;
+                    case 'mail_card': 
+                        const mailAddr = data.addressType === '訂單地址' ? '訂單地址' : (data.address || '其他地址');
+                        return `【備註】請於${dateStr}寄送卡片到${mailAddr}，謝謝！\n\n${base}`;
+                    case 'self_pickup': 
+                        const pickupAction = data.isSelfPickupPhoto === '是' ? '到公司取卡+拍照' : '到公司取卡';
+                        return `【備註】客戶${dateStr} ${data.pickupHour}:${data.pickupMinute} ${pickupAction}\n\n${base}`;
+                    case 'cht_renew': return `【中華續約件🚩】\n▪客戶姓名：${data.customerName}\n▪客戶編號：${data.customerId}\n▪訂單編號：${orderIdStr}\n▪資費方案：${plansSummary}\n▪SIM卡：${sims}\n▪網路方案：${nets}\n▪總計應收：${totalAmount}（收款方式：現場不收費）`;
+                    case 'isp_renew': 
+                        const reg = data.region === '其他' ? data.regionCustom : data.region;
+                        const ispM = (data.ispMonths === '其他' ? data.ispMonthsCustom : data.ispMonths) + '個月';
+                        return `［續約戶］可直接入帳${ispM}\n<${reg || ''}> <${data.buildingName || ''}> <${data.customerName || ''} ${data.customerId || ''}>\n雙網用戶${plansSummary}，加贈${ispM}ISP網路\n智生活訂單編號：${orderIdStr}\n門號開通日：${actDateStr}\n請協助入帳 ，謝謝！`;
+                    case 'double_refund':
+                        const regD = data.region === '其他' ? data.regionCustom : data.region;
+                        const ispMD = (data.ispMonths === '其他' ? data.ispMonthsCustom : data.ispMonths) + '個月';
+                        const refA = data.refundAmount === '其他' ? data.refundAmountCustom : data.refundAmount;
+                        return `${data.customerName} ${data.customerId}，全額退費$${refA}，請協助後續，謝謝。\n\n［退費］全額退費${refA}，重入帳${ispMD}\n<${regD || ''}> <${data.buildingName || ''}> <${data.customerName || ''} ${data.customerId || ''}>\n雙網用戶${plansSummary}，贈送${ispMD}ISP網路\n智生活訂單編號：${orderIdStr}\n門號開通日：${actDateStr}\n請協助入帳 ，謝謝！`;
+                    default: return '';
+                }
+            }, [currentData, mode, isFinanceMode]);
+
+            const handleCopy = () => {
+                const el = document.createElement('textarea');
+                el.value = summaryText;
+                document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
+                setCopied(true); setTimeout(() => setCopied(false), 2000);
+            };
+
+            const ModeButtons = () => {
+                const items = [
+                    { id: 'pure_delivery', label: '原用戶單純送卡', cat: 'dispatch', icon: 'truck', style: 'light' },
+                    { id: 'delivery_photo', label: '原用戶送卡拍照', cat: 'dispatch', icon: 'camera', style: 'light' },
+                    { id: 'install_delivery', label: '新裝機送卡', cat: 'dispatch', icon: 'home', style: 'dark' },
+                    { id: 'install_photo_new', label: '新裝機拍照', cat: 'dispatch', icon: 'camera', style: 'dark' },
+                    { id: 'install_delivery_photo', label: '新裝機送卡拍照', cat: 'dispatch', icon: 'image', style: 'dark' },
+                    { id: 'self_pickup', label: '客至據點取卡', cat: 'dispatch', icon: 'map-pin', style: 'gray' },
+                    { id: 'mail_card', label: '寄卡', cat: 'dispatch', icon: 'mail', style: 'gray' },
+                    { id: 'cht_renew', label: '中華續約', cat: 'dispatch', icon: 'user', style: 'gray' },
+                    { id: 'isp_renew', label: 'ISP續約戶入帳', cat: 'finance', icon: 'user', style: 'light' },
+                    { id: 'double_refund', label: '雙網退費', cat: 'finance', icon: 'user', style: 'light' }
+                ];
+                return (
+                    <div className="flex gap-3 overflow-x-auto no-scrollbar py-2">
+                        {items.filter(i => i.cat === activeCategory).map(item => {
+                            const isActive = mode === item.id;
+                            let currentClass = isActive ? "active" : (item.style === 'dark' ? "inactive-dark" : (item.style === 'gray' ? "inactive-gray" : "inactive-light"));
+                            return (
+                                <button key={item.id} onClick={() => setMode(item.id)} className={`mode-btn ${currentClass}`}>
+                                    <Icon name={item.icon} size={16} />
+                                    {item.label}
+                                </button>
+                            );
+                        })}
+                    </div>
+                );
+            };
+
+            const SelectField = ({ label, name, optionsList, value, customValue, onChange, icon, isPrimary = false, className = "", hideCustom = false }) => (
+                <div className={`space-y-1 ${className}`}>
+                    <label className={`text-[11px] font-black uppercase tracking-wider block flex items-center gap-1 ${isPrimary ? 'text-[#14ccb9]' : 'text-slate-400'}`}>
+                        {icon && <Icon name={icon} size={10} />} {label}
+                    </label>
+                    <div className="relative">
+                        <select name={name} value={value} onChange={onChange} className={`w-full px-3 py-3 bg-white border ${isPrimary ? 'border-[#14ccb9]' : 'border-slate-200'} rounded-input font-bold outline-none appearance-none transition-all focus:ring-2 focus:ring-[#14ccb9]/20`}>
+                            <option value="">請選擇</option>
+                            {optionsList.map(o => <option key={o} value={o}>{o + (['networkMonth', 'ispMonths'].includes(name) && o !== '其他' && !o.includes('個月') ? '個月' : '')}</option>)}
+                        </select>
+                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"><Icon name="chevron-down" size={16}/></div>
+                    </div>
+                    {(!hideCustom && value === '其他') && <input name={`${name}Custom`} value={customValue || ''} onChange={onChange} placeholder="請輸入" className="w-full mt-2 px-3 py-2 border border-[#14ccb9] rounded-input text-[#14ccb9] font-bold text-sm outline-none bg-[#14ccb9]/5" />}
+                </div>
+            );
+
+            return (
+                <div className="min-h-screen flex flex-col">
+                    <div className="sticky top-0 z-[100] bg-white border-b border-slate-200 shadow-sm">
+                        <header className="px-6 py-4 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <div className="text-2xl font-black text-slate-700">智生活 <span className="text-[#14ccb9]">SmaDay</span></div>
+                            </div>
+                            <button onClick={() => setAllFormData(prev => ({...prev, [mode]: initialFormState}))} className="px-6 py-2.5 text-[#14ccb9] border-2 border-[#14ccb9] rounded-xl font-black text-sm hover:bg-[#14ccb9] hover:text-white transition-all">重設內容</button>
+                        </header>
+                        <nav className="px-6 flex bg-slate-50 border-b border-slate-100">
+                            {['dispatch', 'finance'].map(cat => (
+                                <button key={cat} onClick={() => {setActiveCategory(cat); setMode(cat === 'dispatch' ? 'pure_delivery' : 'isp_renew')}} className={`px-8 py-3.5 font-black text-sm border-b-2 transition-all ${activeCategory === cat ? 'border-[#14ccb9] text-[#14ccb9]' : 'border-transparent text-slate-400'}`}>{cat === 'dispatch' ? '派案模板' : '帳務模板'}</button>
+                            ))}
+                        </nav>
+                        <div className="px-6 py-3 bg-white">
+                            <ModeButtons />
+                        </div>
+                    </div>
+
+                    <main className="flex-1 px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        <div className="lg:col-span-7 bg-white p-8 rounded-[32px] custom-shadow border border-slate-100 space-y-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                {isFinanceMode ? (
+                                    <>
+                                        <div className="md:col-span-2 grid grid-cols-2 gap-4">
+                                            {mode === 'double_refund' ? (
+                                                <SelectField label="退款金額" name="refundAmount" optionsList={options.refundAmounts} value={currentData.refundAmount} customValue={currentData.refundAmountCustom} onChange={handleInputChange} isPrimary={true} />
+                                            ) : (
+                                                <SelectField label="地區" name="region" optionsList={options.financeRegions} value={currentData.region} customValue={currentData.regionCustom} onChange={handleInputChange} isPrimary={true} />
+                                            )}
+                                            <SelectField label={mode === 'double_refund' ? "重入帳月份" : "入帳月份"} name="ispMonths" optionsList={options.financeMonths} value={currentData.ispMonths} customValue={currentData.ispMonthsCustom} onChange={handleInputChange} isPrimary={true} />
+                                        </div>
+                                        {mode === 'double_refund' && (
+                                            <div className="md:col-span-2">
+                                                <SelectField label="地區" name="region" optionsList={options.financeRegions} value={currentData.region} customValue={currentData.regionCustom} onChange={handleInputChange} />
+                                            </div>
+                                        )}
+                                        <div className="md:col-span-2 grid grid-cols-2 gap-4">
+                                            <div><label className="text-xs font-black text-slate-400 block mb-1">社區名稱</label><input name="buildingName" value={currentData.buildingName} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
+                                            <div><label className="text-xs font-black text-slate-400 block mb-1">客戶姓名</label><input name="customerName" value={currentData.customerName} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
+                                        </div>
+                                        <div className="md:col-span-2 grid grid-cols-2 gap-4">
+                                            <div><label className="text-xs font-black text-slate-400 block mb-1">客戶 ID</label><input name="customerId" value={currentData.customerId} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
+                                            <div><label className="text-xs font-black text-slate-400 block mb-1">訂單編號</label><input name="orderId" value={currentData.orderId} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
+                                        </div>
+                                        <div className="md:col-span-2 border-t pt-8">
+                                            <div className="flex justify-between items-center mb-6">
+                                                <span className="font-black text-lg text-slate-700 flex items-center gap-2">門號資費設定</span>
+                                            </div>
+                                            <div className="p-6 bg-slate-50 rounded-[24px] border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-5">
+                                                <SelectField label="方案類型" name="contractType" optionsList={["攜碼", "新辦"]} value={currentData.plans[0].contractType} onChange={(e)=>handlePlanChange(0, e)} isPrimary={true} />
+                                                <SelectField label="合約資費" name="planAmount" optionsList={options.planAmount} value={currentData.plans[0].planAmount} customValue={currentData.plans[0].planAmountCustom} onChange={(e)=>handlePlanChange(0, e)} isPrimary={true} />
+                                            </div>
+                                            <div className="mt-4">
+                                                <label className="text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider">開通日期</label>
+                                                <input type="date" name="activationDate" value={currentData.activationDate} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" />
+                                            </div>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <div className="md:col-span-2 grid grid-cols-2 gap-4">
+                                            <div><label className="text-xs font-black text-slate-400 block mb-1">客戶姓名</label><input name="customerName" value={currentData.customerName} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
+                                            <div><label className="text-xs font-black text-slate-400 block mb-1">預繳金編號</label><input name="prepayId" value={currentData.prepayId} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
+                                        </div>
+                                        <div className="md:col-span-2 border-t pt-8">
+                                            <div className="flex justify-between items-center mb-6">
+                                                <span className="font-black text-lg text-slate-700 flex items-center gap-2">門號資費清單 <span className="text-xs bg-[#14ccb9]/10 text-[#14ccb9] px-2 py-0.5 rounded-full">共 {currentData.plans.length} 門</span></span>
+                                                <button onClick={addNewPlan} className="px-4 py-2 bg-[#14ccb9] text-white rounded-xl text-sm font-black hover:bg-[#11ae9e] transition-all flex items-center gap-1">＋ 新增門號</button>
+                                            </div>
+                                            {currentData.plans.map((p, idx) => (
+                                                <div key={idx} className="p-6 bg-slate-50 rounded-[24px] border border-slate-100 mb-6 flex flex-col gap-5 relative group">
+                                                    {idx > 0 && <button onClick={() => removePlan(idx)} className="absolute -top-2 -right-2 bg-white border shadow-sm p-2 rounded-full text-rose-400 opacity-0 group-hover:opacity-100 transition-all"><Icon name="trash-2" size={16}/></button>}
+                                                    <div className="border-b border-slate-200/50 pb-1 mb-1 flex items-center justify-between">
+                                                        <span className="text-[10px] font-black text-[#14ccb9] uppercase tracking-[0.2em]">門號 {idx+1} </span>
+                                                        {idx === 0 && <span className="text-[9px] font-black text-slate-300">應收金額以此門號為主</span>}
+                                                    </div>
+                                                    <div className="w-full">
+                                                        <label className="text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider">智生活訂單編號</label>
+                                                        <input name="orderId" value={p.orderId} onChange={(e)=>handlePlanChange(idx, e)} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg font-bold outline-none focus:border-[#14ccb9]" />
+                                                    </div>
+                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                                        <SelectField label="電信商" name="telecom" optionsList={options.telecom} value={p.telecom} customValue={p.telecomCustom} onChange={(e)=>handlePlanChange(idx,e)} />
+                                                        <SelectField label="合約類型" name="contractType" optionsList={options.contractType} value={p.contractType} customValue={p.contractTypeCustom} onChange={(e)=>handlePlanChange(idx,e)} />
+                                                        <SelectField label="月租費" name="planAmount" optionsList={options.planAmount} value={p.planAmount} customValue={p.planAmountCustom} onChange={(e)=>handlePlanChange(idx,e)} />
+                                                        <SelectField label="合約期" name="period" optionsList={options.period} value={p.period} customValue={p.periodCustom} onChange={(e)=>handlePlanChange(idx,e)} />
+                                                        <SelectField label="家庭上網方案" name="networkMonth" optionsList={options.networkMonths} value={p.networkMonth} onChange={(e)=>handlePlanChange(idx,e)} icon="wifi" isPrimary={true} />
+                                                        {idx === 0 && (
+                                                            <div>
+                                                                <label className="text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider">應收金額 (自動帶入)</label>
+                                                                <input 
+                                                                    type="number" 
+                                                                    name="amount" 
+                                                                    value={p.amount} 
+                                                                    onChange={(e)=>handlePlanChange(idx,e)} 
+                                                                    className={`w-full px-4 py-3 bg-white border rounded-lg font-black text-lg transition-all ${p.amount === '0' ? 'text-slate-400 border-slate-200' : 'text-[#14ccb9] border-[#14ccb9] ring-2 ring-[#14ccb9]/10'}`} 
+                                                                />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="w-full pt-2">
+                                                        <label className="text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider">SIM卡卡號</label>
+                                                        <input name="simNumber" value={p.simNumber} onChange={(e)=>handlePlanChange(idx,e)} placeholder="" className="w-full px-4 py-4 bg-white border border-slate-200 rounded-lg font-bold outline-none focus:border-[#14ccb9] shadow-sm transition-all" />
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                                {!isFinanceMode && (
+                                    <div className="md:col-span-2 border-t pt-8 space-y-6">
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="text-[11px] font-black text-slate-400 block uppercase mb-1">{mode === 'self_pickup' ? '取卡日期' : (mode === 'mail_card' ? '寄件日期' : '預定交付日期')}</label>
+                                                <input type="date" name="deliveryDate" value={currentData.deliveryDate} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" />
+                                            </div>
+                                            <div>
+                                                <label className="text-[11px] font-black text-slate-400 block uppercase mb-1">預定開通日期</label>
+                                                <input type="date" name="activationDate" value={currentData.activationDate} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" />
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-4 items-start">
+                                            <SelectField label="派案負責人員" name="staff" optionsList={options.staff} value={currentData.staff} customValue={currentData.staffCustom} onChange={handleInputChange} isPrimary={true} />
+                                            <div className="space-y-1">
+                                                <label className="text-[11px] font-black text-slate-400 block uppercase tracking-wider">是否需解約</label>
+                                                <div className="flex gap-2">
+                                                    <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '是'}}))} className={`toggle-item ${currentData.isNeedTermination === '是' ? 'selected' : 'unselected'}`}>是</div>
+                                                    <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '否'}}))} className={`toggle-item ${currentData.isNeedTermination === '否' ? 'selected' : 'unselected'}`}>否</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <div className="lg:col-span-5">
+                            <div className="bg-[#1e293b] rounded-[32px] p-8 sticky top-40 custom-shadow border border-slate-700">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-white font-black tracking-widest flex items-center gap-2">
+                                        <span className="w-2 h-5 bg-[#14ccb9] rounded-full"></span> 
+                                        即時預覽
+                                    </h3>
+                                    <button onClick={handleCopy} className={`px-6 py-2.5 rounded-xl font-black text-sm transition-all shadow-lg active:scale-95 ${copied ? 'bg-emerald-500 text-white' : 'bg-[#14ccb9] text-white hover:bg-[#11ae9e]'}`}>
+                                        {copied ? '已複製內容' : '一鍵複製'}
+                                    </button>
+                                </div>
+                                <div className="bg-slate-900/50 rounded-2xl p-6 border border-slate-800 min-h-[450px] overflow-hidden">
+                                    <div key={summaryText} className="preview-content">
+                                        <pre className="text-slate-300 text-sm font-mono whitespace-pre-wrap leading-relaxed select-all">
+                                            {summaryText || '請開始填寫左側資訊以產生即時預覽...'}
+                                        </pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    </script>
+</body>
+</html>
