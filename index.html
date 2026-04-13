@@ -135,7 +135,7 @@
             orderId: '', prepayId: '', customerName: '', customerId: '', 
             buildingName: '', region: '', regionCustom: '', 
             deliveryDate: '', activationDate: '', 
-            pickupHour: '12', pickupMinute: '00',
+            pickupTime: '12:00',
             isSelfPickupPhoto: '否', isNeedTermination: '否', staff: '', staffCustom: '',
             ispMonths: '24', ispMonthsCustom: '', refundAmount: '8900', refundAmountCustom: '',
             addressType: '訂單地址', address: '',
@@ -162,6 +162,20 @@
             const currentData = allFormData[mode];
             const isFinanceMode = mode === 'isp_renew' || mode === 'double_refund';
 
+            const generateTimeOptions = () => {
+                const times = [];
+                // 過濾掉 00:00 - 07:45 以及 21:15 - 23:45
+                // 只保留 08:00 到 21:00
+                for(let h=8; h<=21; h++) {
+                    for(let m=0; m<60; m+=15) {
+                        // 如果是 21 點，只保留 21:00
+                        if (h === 21 && m > 0) continue;
+                        times.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
+                    }
+                }
+                return times;
+            };
+
             const options = {
                 staff: ["中和-何心渝", "淡水-白宜珊", "汐止-黃昱潔", "桃園-李佩珊", "竹苗-范貞昱", "台中-陳均柔", "電銷-沈姵妤", "高雄-吳佳蓉", "台南-蔡泫樺", "其他"],
                 telecom: ["中華", "遠傳", "其他"],
@@ -172,8 +186,7 @@
                 networkMonths: ["3", "4", "6", "8", "9", "12", "13", "14", "16", "19", "24", "30", "其他"],
                 financeMonths: ["3", "4", "6", "8", "9", "12", "13", "14", "16", "19", "24", "24+1", "24+2", "30", "其他"],
                 refundAmounts: ["8900", "6000", "5400", "其他"],
-                hours: Array.from({length: 24}, (_, i) => i.toString().padStart(2, '0')),
-                minutes: ["00", "15", "30", "45"],
+                timeSlots: generateTimeOptions()
             };
 
             const calculateAutoAmount = (plan) => {
@@ -181,110 +194,27 @@
                 const telecom = plan.telecom;
                 const type = plan.contractType;
                 const amount = plan.planAmount;
-                
                 const zeroMonths = ["3", "4", "8", "9", "13", "16", "19", "30"];
                 if (zeroMonths.includes(month)) return "0";
-
-                const match24 = month === "24";
-                const match14 = month === "14";
-                const match12 = month === "12";
-
-                if (match24) {
+                if (month === "24") {
                     if (telecom === "中華") {
                         if (type === "新辦") {
                             if (amount === "599") return "6400";
                             if (amount === "699") return "7900";
-                            if (amount === "799") return "3900";
-                            if (amount === "999") return "1900";
-                            if (amount === "1399") return "0";
                         } else if (type === "攜碼") {
                             if (amount === "599") return "5900";
                             if (amount === "699") return "7400";
-                            if (amount === "799") return "2900";
-                            if (amount === "999") return "0";
-                            if (amount === "1399") return "0";
                         }
                     } else if (telecom === "遠傳") {
                         if (type === "新辦") {
                             if (amount === "399") return "7900";
                             if (amount === "599") return "5900";
-                            if (amount === "799") return "3900";
-                            if (amount === "999") return "1900";
-                            if (amount === "1399") return "0";
                         } else if (type === "攜碼") {
                             if (amount === "399") return "7400";
                             if (amount === "599") return "5400";
-                            if (amount === "799") return "2900";
-                            if (amount === "999") return "0";
-                            if (amount === "1399") return "0";
                         }
                     }
                 }
-
-                if (match14) {
-                    if (telecom === "中華") {
-                        if (type === "新辦") {
-                            if (amount === "599") return "3500";
-                            if (amount === "699") return "5000";
-                            if (amount === "799") return "1000";
-                            if (amount === "999") return "0";
-                            if (amount === "1399") return "0";
-                        } else if (type === "攜碼") {
-                            if (amount === "599") return "3000";
-                            if (amount === "699") return "4500";
-                            if (amount === "799") return "0";
-                            if (amount === "999") return "0";
-                            if (amount === "1399") return "0";
-                        }
-                    } else if (telecom === "遠傳") {
-                        if (type === "新辦") {
-                            if (amount === "399") return "5000";
-                            if (amount === "599") return "3000";
-                            if (amount === "799") return "1000";
-                            if (amount === "999") return "0";
-                            if (amount === "1399") return "0";
-                        } else if (type === "攜碼") {
-                            if (amount === "399") return "4500";
-                            if (amount === "599") return "2500";
-                            if (amount === "799") return "0";
-                            if (amount === "999") return "0";
-                            if (amount === "1399") return "0";
-                        }
-                    }
-                }
-
-                if (match12) {
-                    if (telecom === "中華") {
-                        if (type === "新辦") {
-                            if (amount === "599") return "2900";
-                            if (amount === "699") return "4400";
-                            if (amount === "799") return "400";
-                            if (amount === "999") return "0";
-                            if (amount === "1399") return "0";
-                        } else if (type === "攜碼") {
-                            if (amount === "599") return "2400";
-                            if (amount === "699") return "3900";
-                            if (amount === "799") return "0";
-                            if (amount === "999") return "0";
-                            if (amount === "1399") return "0";
-                        }
-                    } else if (telecom === "遠傳") {
-                        if (type === "新辦") {
-                            if (amount === "399") return "4400";
-                            if (amount === "599") return "2400";
-                            if (amount === "799") return "400";
-                            if (amount === "999") return "1900";
-                            if (amount === "1399") return "0";
-                        } else if (type === "攜碼") {
-                            if (amount === "399") return "3900";
-                            if (amount === "599") return "1900";
-                            if (amount === "799") return "0";
-                            if (amount === "999") return "0";
-                            if (amount === "1399") return "0";
-                        }
-                    }
-                }
-
                 return plan.amount;
             };
 
@@ -298,13 +228,8 @@
                 setAllFormData(prev => {
                     const updatedPlans = [...prev[mode].plans];
                     let updatedPlan = { ...updatedPlans[index], [name]: value };
-                    
-                    if (index === 0 && !isFinanceMode) {
-                        updatedPlan.amount = calculateAutoAmount(updatedPlan);
-                    } else if (index > 0) {
-                        updatedPlan.amount = '0';
-                    }
-                    
+                    if (index === 0 && !isFinanceMode) { updatedPlan.amount = calculateAutoAmount(updatedPlan); } 
+                    else if (index > 0) { updatedPlan.amount = '0'; }
                     updatedPlans[index] = updatedPlan;
                     return { ...prev, [mode]: { ...prev[mode], plans: updatedPlans } };
                 });
@@ -353,7 +278,7 @@
                         return `【備註】請於${dateStr}寄送卡片到${mailAddr}，謝謝！\n\n${base}`;
                     case 'self_pickup': 
                         const pickupAction = data.isSelfPickupPhoto === '是' ? '到公司取卡+拍照' : '到公司取卡';
-                        return `【備註】客戶${dateStr} ${data.pickupHour}:${data.pickupMinute} ${pickupAction}\n\n${base}`;
+                        return `【備註】客戶${dateStr} ${data.pickupTime} ${pickupAction}\n\n${base}`;
                     case 'cht_renew': return `【中華續約件🚩】\n▪客戶姓名：${data.customerName}\n▪客戶編號：${data.customerId}\n▪訂單編號：${orderIdStr}\n▪資費方案：${plansSummary}\n▪SIM卡：${sims}\n▪網路方案：${nets}\n▪總計應收：${totalAmount}（收款方式：現場不收費）`;
                     case 'isp_renew': 
                         const reg = data.region === '其他' ? data.regionCustom : data.region;
@@ -404,13 +329,13 @@
                 );
             };
 
-            const SelectField = ({ label, name, optionsList, value, customValue, onChange, icon, isPrimary = false, className = "", hideCustom = false }) => (
+            const SelectField = ({ label, name, optionsList, value, customValue, onChange, icon, isPrimary = false, className = "", hideCustom = false, selectClassName = "" }) => (
                 <div className={`space-y-1 ${className}`}>
                     <label className={`text-[11px] font-black uppercase tracking-wider block flex items-center gap-1 ${isPrimary ? 'text-[#14ccb9]' : 'text-slate-400'}`}>
                         {icon && <Icon name={icon} size={10} />} {label}
                     </label>
                     <div className="relative">
-                        <select name={name} value={value} onChange={onChange} className={`w-full px-3 py-3 bg-white border ${isPrimary ? 'border-[#14ccb9]' : 'border-slate-200'} rounded-input font-bold outline-none appearance-none transition-all focus:ring-2 focus:ring-[#14ccb9]/20`}>
+                        <select name={name} value={value} onChange={onChange} className={`w-full px-3 py-3 bg-white border ${isPrimary ? 'border-[#14ccb9]' : 'border-slate-200'} rounded-input font-bold outline-none appearance-none transition-all focus:ring-2 focus:ring-[#14ccb9]/20 ${selectClassName}`}>
                             <option value="">請選擇</option>
                             {optionsList.map(o => <option key={o} value={o}>{o + (['networkMonth', 'ispMonths'].includes(name) && o !== '其他' && !o.includes('個月') ? '個月' : '')}</option>)}
                         </select>
@@ -452,11 +377,6 @@
                                             )}
                                             <SelectField label={mode === 'double_refund' ? "重入帳月份" : "入帳月份"} name="ispMonths" optionsList={options.financeMonths} value={currentData.ispMonths} customValue={currentData.ispMonthsCustom} onChange={handleInputChange} isPrimary={true} />
                                         </div>
-                                        {mode === 'double_refund' && (
-                                            <div className="md:col-span-2">
-                                                <SelectField label="地區" name="region" optionsList={options.financeRegions} value={currentData.region} customValue={currentData.regionCustom} onChange={handleInputChange} />
-                                            </div>
-                                        )}
                                         <div className="md:col-span-2 grid grid-cols-2 gap-4">
                                             <div><label className="text-xs font-black text-slate-400 block mb-1">社區名稱</label><input name="buildingName" value={currentData.buildingName} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
                                             <div><label className="text-xs font-black text-slate-400 block mb-1">客戶姓名</label><input name="customerName" value={currentData.customerName} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
@@ -472,10 +392,6 @@
                                             <div className="p-6 bg-slate-50 rounded-[24px] border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-5">
                                                 <SelectField label="方案類型" name="contractType" optionsList={["攜碼", "新辦"]} value={currentData.plans[0].contractType} onChange={(e)=>handlePlanChange(0, e)} isPrimary={true} />
                                                 <SelectField label="合約資費" name="planAmount" optionsList={options.planAmount} value={currentData.plans[0].planAmount} customValue={currentData.plans[0].planAmountCustom} onChange={(e)=>handlePlanChange(0, e)} isPrimary={true} />
-                                            </div>
-                                            <div className="mt-4">
-                                                <label className="text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider">開通日期</label>
-                                                <input type="date" name="activationDate" value={currentData.activationDate} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" />
                                             </div>
                                         </div>
                                     </>
@@ -495,7 +411,6 @@
                                                     {idx > 0 && <button onClick={() => removePlan(idx)} className="absolute -top-2 -right-2 bg-white border shadow-sm p-2 rounded-full text-rose-400 opacity-0 group-hover:opacity-100 transition-all"><Icon name="trash-2" size={16}/></button>}
                                                     <div className="border-b border-slate-200/50 pb-1 mb-1 flex items-center justify-between">
                                                         <span className="text-[10px] font-black text-[#14ccb9] uppercase tracking-[0.2em]">門號 {idx+1} </span>
-                                                        {idx === 0 && <span className="text-[9px] font-black text-slate-300">應收金額以此門號為主</span>}
                                                     </div>
                                                     <div className="w-full">
                                                         <label className="text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider">智生活訂單編號</label>
@@ -510,19 +425,13 @@
                                                         {idx === 0 && (
                                                             <div>
                                                                 <label className="text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider">應收金額 (自動帶入)</label>
-                                                                <input 
-                                                                    type="number" 
-                                                                    name="amount" 
-                                                                    value={p.amount} 
-                                                                    onChange={(e)=>handlePlanChange(idx,e)} 
-                                                                    className={`w-full px-4 py-3 bg-white border rounded-lg font-black text-lg transition-all ${p.amount === '0' ? 'text-slate-400 border-slate-200' : 'text-[#14ccb9] border-[#14ccb9] ring-2 ring-[#14ccb9]/10'}`} 
-                                                                />
+                                                                <input type="number" name="amount" value={p.amount} onChange={(e)=>handlePlanChange(idx,e)} className="w-full px-4 py-3 bg-white border border-[#14ccb9] rounded-lg font-black text-[#14ccb9] outline-none" />
                                                             </div>
                                                         )}
                                                     </div>
                                                     <div className="w-full pt-2">
                                                         <label className="text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider">SIM卡卡號</label>
-                                                        <input name="simNumber" value={p.simNumber} onChange={(e)=>handlePlanChange(idx,e)} placeholder="" className="w-full px-4 py-4 bg-white border border-slate-200 rounded-lg font-bold outline-none focus:border-[#14ccb9] shadow-sm transition-all" />
+                                                        <input name="simNumber" value={p.simNumber} onChange={(e)=>handlePlanChange(idx,e)} className="w-full px-4 py-4 bg-white border border-slate-200 rounded-lg font-bold outline-none focus:border-[#14ccb9]" />
                                                     </div>
                                                 </div>
                                             ))}
@@ -542,47 +451,52 @@
                                             </div>
                                         </div>
 
-                                        {mode === 'self_pickup' && (
-                                            <div className="space-y-1">
-                                                <label className="text-[11px] font-black text-[#14ccb9] block uppercase tracking-wider flex items-center gap-1">
-                                                    <Icon name="clock" size={12} /> 取卡時間選擇
-                                                </label>
-                                                <div className="flex gap-2">
-                                                    <div className="flex-1 relative">
-                                                        <select name="pickupHour" value={currentData.pickupHour} onChange={handleInputChange} className="w-full px-3 py-3 bg-white border border-[#14ccb9] rounded-input font-black outline-none appearance-none transition-all focus:ring-2 focus:ring-[#14ccb9]/20">
-                                                            {options.hours.map(h => <option key={h} value={h}>{h} 點</option>)}
+                                        {mode === 'self_pickup' ? (
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                                                <div className="space-y-1">
+                                                    <label className="text-[11px] font-black text-[#14ccb9] block uppercase tracking-wider flex items-center gap-1">
+                                                        <Icon name="clock" size={12} /> 取卡時間選擇
+                                                    </label>
+                                                    <div className="relative">
+                                                        <select name="pickupTime" value={currentData.pickupTime} onChange={handleInputChange} className="w-full px-3 py-3 bg-white border border-[#14ccb9] rounded-input font-black outline-none appearance-none transition-all focus:ring-2 focus:ring-[#14ccb9]/20">
+                                                            {options.timeSlots.map(t => <option key={t} value={t}>{t}</option>)}
                                                         </select>
                                                         <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#14ccb9]"><Icon name="chevron-down" size={14}/></div>
                                                     </div>
-                                                    <div className="flex-1 relative">
-                                                        <select name="pickupMinute" value={currentData.pickupMinute} onChange={handleInputChange} className="w-full px-3 py-3 bg-white border border-[#14ccb9] rounded-input font-black outline-none appearance-none transition-all focus:ring-2 focus:ring-[#14ccb9]/20">
-                                                            {options.minutes.map(m => <option key={m} value={m}>{m} 分</option>)}
-                                                        </select>
-                                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#14ccb9]"><Icon name="chevron-down" size={14}/></div>
+                                                </div>
+                                                <SelectField label="派案負責人員" name="staff" optionsList={options.staff} value={currentData.staff} customValue={currentData.staffCustom} onChange={handleInputChange} isPrimary={true} />
+                                            </div>
+                                        ) : (
+                                            <div className="grid grid-cols-2 gap-4 items-start">
+                                                <SelectField label="派案負責人員" name="staff" optionsList={options.staff} value={currentData.staff} customValue={currentData.staffCustom} onChange={handleInputChange} isPrimary={true} />
+                                                <div className="space-y-1">
+                                                    <label className="text-[11px] font-black text-slate-400 block uppercase tracking-wider">是否需解約</label>
+                                                    <div className="flex gap-2">
+                                                        <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '是'}}))} className={`toggle-item ${currentData.isNeedTermination === '是' ? 'selected' : 'unselected'}`}>是</div>
+                                                        <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '否'}}))} className={`toggle-item ${currentData.isNeedTermination === '否' ? 'selected' : 'unselected'}`}>否</div>
                                                     </div>
                                                 </div>
                                             </div>
                                         )}
 
-                                        <div className="grid grid-cols-2 gap-4 items-start">
-                                            <SelectField label="派案負責人員" name="staff" optionsList={options.staff} value={currentData.staff} customValue={currentData.staffCustom} onChange={handleInputChange} isPrimary={true} />
-                                            <div className="space-y-1">
-                                                <label className="text-[11px] font-black text-slate-400 block uppercase tracking-wider">{mode === 'self_pickup' ? '是否需拍照' : '是否需解約'}</label>
-                                                <div className="flex gap-2">
-                                                    {mode === 'self_pickup' ? (
-                                                        <>
-                                                            <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isSelfPickupPhoto: '是'}}))} className={`toggle-item ${currentData.isSelfPickupPhoto === '是' ? 'selected' : 'unselected'}`}>是</div>
-                                                            <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isSelfPickupPhoto: '否'}}))} className={`toggle-item ${currentData.isSelfPickupPhoto === '否' ? 'selected' : 'unselected'}`}>否</div>
-                                                        </>
-                                                    ) : (
-                                                        <>
-                                                            <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '是'}}))} className={`toggle-item ${currentData.isNeedTermination === '是' ? 'selected' : 'unselected'}`}>是</div>
-                                                            <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '否'}}))} className={`toggle-item ${currentData.isNeedTermination === '否' ? 'selected' : 'unselected'}`}>否</div>
-                                                        </>
-                                                    )}
+                                        {mode === 'self_pickup' && (
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="space-y-1">
+                                                    <label className="text-[11px] font-black text-slate-400 block uppercase tracking-wider">是否需解約</label>
+                                                    <div className="flex gap-2">
+                                                        <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '是'}}))} className={`toggle-item ${currentData.isNeedTermination === '是' ? 'selected' : 'unselected'}`}>是</div>
+                                                        <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '否'}}))} className={`toggle-item ${currentData.isNeedTermination === '否' ? 'selected' : 'unselected'}`}>否</div>
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[11px] font-black text-slate-400 block uppercase tracking-wider">是否需拍照</label>
+                                                    <div className="flex gap-2">
+                                                        <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isSelfPickupPhoto: '是'}}))} className={`toggle-item ${currentData.isSelfPickupPhoto === '是' ? 'selected' : 'unselected'}`}>是</div>
+                                                        <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isSelfPickupPhoto: '否'}}))} className={`toggle-item ${currentData.isSelfPickupPhoto === '否' ? 'selected' : 'unselected'}`}>否</div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
                                 )}
                             </div>
