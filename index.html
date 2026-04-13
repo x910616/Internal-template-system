@@ -163,7 +163,6 @@
             const isFinanceMode = mode === 'isp_renew' || mode === 'double_refund';
 
             const options = {
-                // 已更新卓湘雲為黃昱潔
                 staff: ["中和-何心渝", "淡水-白宜珊", "汐止-黃昱潔", "桃園-李佩珊", "竹苗-范貞昱", "台中-陳均柔", "電銷-沈姵妤", "高雄-吳佳蓉", "台南-蔡泫樺", "其他"],
                 telecom: ["中華", "遠傳", "其他"],
                 contractType: ["攜碼", "新辦", "續約", "其他"],
@@ -542,13 +541,45 @@
                                                 <input type="date" name="activationDate" value={currentData.activationDate} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" />
                                             </div>
                                         </div>
+
+                                        {mode === 'self_pickup' && (
+                                            <div className="space-y-1">
+                                                <label className="text-[11px] font-black text-[#14ccb9] block uppercase tracking-wider flex items-center gap-1">
+                                                    <Icon name="clock" size={12} /> 取卡時間選擇
+                                                </label>
+                                                <div className="flex gap-2">
+                                                    <div className="flex-1 relative">
+                                                        <select name="pickupHour" value={currentData.pickupHour} onChange={handleInputChange} className="w-full px-3 py-3 bg-white border border-[#14ccb9] rounded-input font-black outline-none appearance-none transition-all focus:ring-2 focus:ring-[#14ccb9]/20">
+                                                            {options.hours.map(h => <option key={h} value={h}>{h} 點</option>)}
+                                                        </select>
+                                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#14ccb9]"><Icon name="chevron-down" size={14}/></div>
+                                                    </div>
+                                                    <div className="flex-1 relative">
+                                                        <select name="pickupMinute" value={currentData.pickupMinute} onChange={handleInputChange} className="w-full px-3 py-3 bg-white border border-[#14ccb9] rounded-input font-black outline-none appearance-none transition-all focus:ring-2 focus:ring-[#14ccb9]/20">
+                                                            {options.minutes.map(m => <option key={m} value={m}>{m} 分</option>)}
+                                                        </select>
+                                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#14ccb9]"><Icon name="chevron-down" size={14}/></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
                                         <div className="grid grid-cols-2 gap-4 items-start">
                                             <SelectField label="派案負責人員" name="staff" optionsList={options.staff} value={currentData.staff} customValue={currentData.staffCustom} onChange={handleInputChange} isPrimary={true} />
                                             <div className="space-y-1">
-                                                <label className="text-[11px] font-black text-slate-400 block uppercase tracking-wider">是否需解約</label>
+                                                <label className="text-[11px] font-black text-slate-400 block uppercase tracking-wider">{mode === 'self_pickup' ? '是否需拍照' : '是否需解約'}</label>
                                                 <div className="flex gap-2">
-                                                    <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '是'}}))} className={`toggle-item ${currentData.isNeedTermination === '是' ? 'selected' : 'unselected'}`}>是</div>
-                                                    <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '否'}}))} className={`toggle-item ${currentData.isNeedTermination === '否' ? 'selected' : 'unselected'}`}>否</div>
+                                                    {mode === 'self_pickup' ? (
+                                                        <>
+                                                            <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isSelfPickupPhoto: '是'}}))} className={`toggle-item ${currentData.isSelfPickupPhoto === '是' ? 'selected' : 'unselected'}`}>是</div>
+                                                            <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isSelfPickupPhoto: '否'}}))} className={`toggle-item ${currentData.isSelfPickupPhoto === '否' ? 'selected' : 'unselected'}`}>否</div>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '是'}}))} className={`toggle-item ${currentData.isNeedTermination === '是' ? 'selected' : 'unselected'}`}>是</div>
+                                                            <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '否'}}))} className={`toggle-item ${currentData.isNeedTermination === '否' ? 'selected' : 'unselected'}`}>否</div>
+                                                        </>
+                                                    )}
                                                 </div>
                                             </div>
                                         </div>
