@@ -164,11 +164,8 @@
 
             const generateTimeOptions = () => {
                 const times = [];
-                // 過濾掉 00:00 - 07:45 以及 21:15 - 23:45
-                // 只保留 08:00 到 21:00
                 for(let h=8; h<=21; h++) {
                     for(let m=0; m<60; m+=15) {
-                        // 如果是 21 點，只保留 21:00
                         if (h === 21 && m > 0) continue;
                         times.push(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`);
                     }
@@ -389,9 +386,15 @@
                                             <div className="flex justify-between items-center mb-6">
                                                 <span className="font-black text-lg text-slate-700 flex items-center gap-2">門號資費設定</span>
                                             </div>
-                                            <div className="p-6 bg-slate-50 rounded-[24px] border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-5">
+                                            <div className="p-6 bg-slate-50 rounded-[24px] border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
                                                 <SelectField label="方案類型" name="contractType" optionsList={["攜碼", "新辦"]} value={currentData.plans[0].contractType} onChange={(e)=>handlePlanChange(0, e)} isPrimary={true} />
                                                 <SelectField label="合約資費" name="planAmount" optionsList={options.planAmount} value={currentData.plans[0].planAmount} customValue={currentData.plans[0].planAmountCustom} onChange={(e)=>handlePlanChange(0, e)} isPrimary={true} />
+                                            </div>
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                <div>
+                                                    <label className="text-[11px] font-black text-slate-400 block uppercase mb-1">門號預定開通日期</label>
+                                                    <input type="date" name="activationDate" value={currentData.activationDate} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" />
+                                                </div>
                                             </div>
                                         </div>
                                     </>
