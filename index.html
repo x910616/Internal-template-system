@@ -367,13 +367,18 @@
                                 {isFinanceMode ? (
                                     <>
                                         <div className="md:col-span-2 grid grid-cols-2 gap-4">
+                                            <SelectField label="地區" name="region" optionsList={options.financeRegions} value={currentData.region} customValue={currentData.regionCustom} onChange={handleInputChange} isPrimary={true} />
                                             {mode === 'double_refund' ? (
                                                 <SelectField label="退款金額" name="refundAmount" optionsList={options.refundAmounts} value={currentData.refundAmount} customValue={currentData.refundAmountCustom} onChange={handleInputChange} isPrimary={true} />
                                             ) : (
-                                                <SelectField label="地區" name="region" optionsList={options.financeRegions} value={currentData.region} customValue={currentData.regionCustom} onChange={handleInputChange} isPrimary={true} />
+                                                <SelectField label="入帳月份" name="ispMonths" optionsList={options.financeMonths} value={currentData.ispMonths} customValue={currentData.ispMonthsCustom} onChange={handleInputChange} isPrimary={true} />
                                             )}
-                                            <SelectField label={mode === 'double_refund' ? "重入帳月份" : "入帳月份"} name="ispMonths" optionsList={options.financeMonths} value={currentData.ispMonths} customValue={currentData.ispMonthsCustom} onChange={handleInputChange} isPrimary={true} />
                                         </div>
+                                        {mode === 'double_refund' && (
+                                            <div className="md:col-span-2">
+                                                <SelectField label="重入帳月份" name="ispMonths" optionsList={options.financeMonths} value={currentData.ispMonths} customValue={currentData.ispMonthsCustom} onChange={handleInputChange} isPrimary={true} />
+                                            </div>
+                                        )}
                                         <div className="md:col-span-2 grid grid-cols-2 gap-4">
                                             <div><label className="text-xs font-black text-slate-400 block mb-1">社區名稱</label><input name="buildingName" value={currentData.buildingName} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
                                             <div><label className="text-xs font-black text-slate-400 block mb-1">客戶姓名</label><input name="customerName" value={currentData.customerName} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
