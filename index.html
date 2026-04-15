@@ -291,10 +291,25 @@
             }, [currentData, mode, isFinanceMode]);
 
             const handleCopy = () => {
+                if (!summaryText) return;
+                
                 const el = document.createElement('textarea');
                 el.value = summaryText;
-                document.body.appendChild(el); el.select(); document.execCommand('copy'); document.body.removeChild(el);
-                setCopied(true); setTimeout(() => setCopied(false), 2000);
+                document.body.appendChild(el); 
+                el.select(); 
+                document.execCommand('copy'); 
+                document.body.removeChild(el);
+                
+                setCopied(true); 
+                
+                // 複製後自動清除該模板資料
+                setTimeout(() => {
+                    setCopied(false);
+                    setAllFormData(prev => ({
+                        ...prev, 
+                        [mode]: { ...initialFormState, plans: [{ ...initialPlanState }] }
+                    }));
+                }, 1000);
             };
 
             const ModeButtons = () => {
@@ -349,7 +364,7 @@
                             <div className="flex items-center gap-3">
                                 <div className="text-2xl font-black text-slate-700">智生活 <span className="text-[#14ccb9]">SmaDay</span></div>
                             </div>
-                            <button onClick={() => setAllFormData(prev => ({...prev, [mode]: initialFormState}))} className="px-6 py-2.5 text-[#14ccb9] border-2 border-[#14ccb9] rounded-xl font-black text-sm hover:bg-[#14ccb9] hover:text-white transition-all">重設內容</button>
+                            <button onClick={() => setAllFormData(prev => ({...prev, [mode]: { ...initialFormState, plans: [{ ...initialPlanState }] }}))} className="px-6 py-2.5 text-[#14ccb9] border-2 border-[#14ccb9] rounded-xl font-black text-sm hover:bg-[#14ccb9] hover:text-white transition-all">重設內容</button>
                         </header>
                         <nav className="px-6 flex bg-slate-50 border-b border-slate-100">
                             {['dispatch', 'finance'].map(cat => (
@@ -516,8 +531,12 @@
                                         <span className="w-2 h-5 bg-[#14ccb9] rounded-full"></span> 
                                         即時預覽
                                     </h3>
-                                    <button onClick={handleCopy} className={`px-6 py-2.5 rounded-xl font-black text-sm transition-all shadow-lg active:scale-95 ${copied ? 'bg-emerald-500 text-white' : 'bg-[#14ccb9] text-white hover:bg-[#11ae9e]'}`}>
-                                        {copied ? '已複製內容' : '一鍵複製'}
+                                    <button 
+                                        onClick={handleCopy} 
+                                        disabled={!summaryText}
+                                        className={`px-6 py-2.5 rounded-xl font-black text-sm transition-all shadow-lg active:scale-95 ${!summaryText ? 'bg-slate-700 text-slate-500 cursor-not-allowed' : copied ? 'bg-emerald-500 text-white' : 'bg-[#14ccb9] text-white hover:bg-[#11ae9e]'}`}
+                                    >
+                                        {copied ? '已複製並清空' : '一鍵複製'}
                                     </button>
                                 </div>
                                 <div className="bg-slate-900/50 rounded-2xl p-6 border border-slate-800 min-h-[450px] overflow-hidden">
