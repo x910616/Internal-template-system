@@ -174,7 +174,7 @@
             };
 
             const options = {
-                staff: ["中和-何心渝", "淡水-白宜珊", "汐止-黃昱潔", "桃園-李佩珊", "竹苗-范貞昱", "台中-陳均柔", "電銷-沈姵妤", "高雄-吳佳蓉", "台南-蔡泫樺", "其他"],
+                staff: ["中和-何心渝", "淡水-白宜珊", "汐止-黃昱潔", "桃園-李佩珊", "新竹-鄭雅文", "台中-陳均柔", "電銷-沈姵妤", "高雄-吳佳蓉", "台南-蔡泫樺", "其他"],
                 telecom: ["中華", "遠傳", "其他"],
                 contractType: ["攜碼", "新辦", "續約", "其他"],
                 planAmount: ["399", "599", "699", "799", "999", "1399", "其他"],
@@ -191,28 +191,111 @@
                 const telecom = plan.telecom;
                 const type = plan.contractType;
                 const amount = plan.planAmount;
+                
+                // 3、4、8、9、13、16、19、30 這些月份金額都直接跳 0
                 const zeroMonths = ["3", "4", "8", "9", "13", "16", "19", "30"];
                 if (zeroMonths.includes(month)) return "0";
+
+                // 家庭上網 24 個月
                 if (month === "24") {
                     if (telecom === "中華") {
                         if (type === "新辦") {
                             if (amount === "599") return "6400";
                             if (amount === "699") return "7900";
+                            if (amount === "799") return "3900";
+                            if (amount === "999") return "1900";
+                            if (amount === "1399") return "0";
                         } else if (type === "攜碼") {
                             if (amount === "599") return "5900";
                             if (amount === "699") return "7400";
+                            if (amount === "799") return "2900";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
                         }
                     } else if (telecom === "遠傳") {
                         if (type === "新辦") {
                             if (amount === "399") return "7900";
                             if (amount === "599") return "5900";
+                            if (amount === "799") return "3900";
+                            if (amount === "999") return "1900";
+                            if (amount === "1399") return "0";
                         } else if (type === "攜碼") {
                             if (amount === "399") return "7400";
                             if (amount === "599") return "5400";
+                            if (amount === "799") return "2900";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
                         }
                     }
                 }
-                return plan.amount;
+
+                // 家庭上網 14 個月
+                if (month === "14") {
+                    if (telecom === "中華") {
+                        if (type === "新辦") {
+                            if (amount === "599") return "3500";
+                            if (amount === "699") return "5000";
+                            if (amount === "799") return "1000";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        } else if (type === "攜碼") {
+                            if (amount === "599") return "3000";
+                            if (amount === "699") return "4500";
+                            if (amount === "799") return "0";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        }
+                    } else if (telecom === "遠傳") {
+                        if (type === "新辦") {
+                            if (amount === "399") return "5000";
+                            if (amount === "599") return "3000";
+                            if (amount === "799") return "1000";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        } else if (type === "攜碼") {
+                            if (amount === "399") return "4500";
+                            if (amount === "599") return "2500";
+                            if (amount === "799") return "0";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        }
+                    }
+                }
+
+                // 家庭上網 12 個月
+                if (month === "12") {
+                    if (telecom === "中華") {
+                        if (type === "新辦") {
+                            if (amount === "599") return "2900";
+                            if (amount === "699") return "4400";
+                            if (amount === "799") return "400";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        } else if (type === "攜碼") {
+                            if (amount === "599") return "2400";
+                            if (amount === "699") return "3900";
+                            if (amount === "799") return "0";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        }
+                    } else if (telecom === "遠傳") {
+                        if (type === "新辦") {
+                            if (amount === "399") return "4400";
+                            if (amount === "599") return "2400";
+                            if (amount === "799") return "400";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        } else if (type === "攜碼") {
+                            if (amount === "399") return "3900";
+                            if (amount === "599") return "1900";
+                            if (amount === "799") return "0";
+                            if (amount === "999") return "0";
+                            if (amount === "1399") return "0";
+                        }
+                    }
+                }
+
+                return plan.amount || "0";
             };
 
             const handleInputChange = (e) => {
@@ -225,8 +308,12 @@
                 setAllFormData(prev => {
                     const updatedPlans = [...prev[mode].plans];
                     let updatedPlan = { ...updatedPlans[index], [name]: value };
-                    if (index === 0 && !isFinanceMode) { updatedPlan.amount = calculateAutoAmount(updatedPlan); } 
-                    else if (index > 0) { updatedPlan.amount = '0'; }
+                    
+                    // 派案模板中的應收金額自動計算邏輯
+                    if (!isFinanceMode) { 
+                        updatedPlan.amount = calculateAutoAmount(updatedPlan); 
+                    } 
+                    
                     updatedPlans[index] = updatedPlan;
                     return { ...prev, [mode]: { ...prev[mode], plans: updatedPlans } };
                 });
@@ -302,7 +389,6 @@
                 
                 setCopied(true); 
                 
-                // 複製後自動清除該模板資料
                 setTimeout(() => {
                     setCopied(false);
                     setAllFormData(prev => ({
@@ -445,12 +531,10 @@
                                                         <SelectField label="月租費" name="planAmount" optionsList={options.planAmount} value={p.planAmount} customValue={p.planAmountCustom} onChange={(e)=>handlePlanChange(idx,e)} />
                                                         <SelectField label="合約期" name="period" optionsList={options.period} value={p.period} customValue={p.periodCustom} onChange={(e)=>handlePlanChange(idx,e)} />
                                                         <SelectField label="家庭上網方案" name="networkMonth" optionsList={options.networkMonths} value={p.networkMonth} onChange={(e)=>handlePlanChange(idx,e)} icon="wifi" isPrimary={true} />
-                                                        {idx === 0 && (
-                                                            <div>
-                                                                <label className="text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider">應收金額 (自動帶入)</label>
-                                                                <input type="number" name="amount" value={p.amount} onChange={(e)=>handlePlanChange(idx,e)} className="w-full px-4 py-3 bg-white border border-[#14ccb9] rounded-lg font-black text-[#14ccb9] outline-none" />
-                                                            </div>
-                                                        )}
+                                                        <div>
+                                                            <label className="text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider">應收金額 (自動帶入)</label>
+                                                            <input type="number" name="amount" value={p.amount} onChange={(e)=>handlePlanChange(idx,e)} className="w-full px-4 py-3 bg-white border border-[#14ccb9] rounded-lg font-black text-[#14ccb9] outline-none" />
+                                                        </div>
                                                     </div>
                                                     <div className="w-full pt-2">
                                                         <label className="text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider">SIM卡卡號</label>
