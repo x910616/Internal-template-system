@@ -30,7 +30,6 @@
     <div id="root"></div>
 
     <script>
-        // 移除 Babel，直接用 React.createElement 改寫以符合原生瀏覽器解析
         const { useState, useEffect, useMemo } = React;
         const e = React.createElement;
 
@@ -353,7 +352,7 @@
                         e("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
                             isFinanceMode ? e(React.Fragment, null,
                                 e("div", { className: "md:col-span-2 grid grid-cols-2 gap-4" },
-                                   e(SelectField, { label: "地區", name: "region", optionsList: options.financeRegions, value: currentData.region, customValue: currentData.regionCustom, onChange: handleInputChange, isPrimary: true }),
+                                    e(SelectField, { label: "地區", name: "region", optionsList: options.financeRegions, value: currentData.region, customValue: currentData.regionCustom, onChange: handleInputChange, isPrimary: true }),
                                     mode === 'double_refund' ? e(SelectField, { label: "退款金額", name: "refundAmount", optionsList: options.refundAmounts, value: currentData.refundAmount, customValue: currentData.refundAmountCustom, onChange: handleInputChange, isPrimary: true }) : e(SelectField, { label: "入帳月份", name: "ispMonths", optionsList: options.financeMonths, value: currentData.ispMonths, customValue: currentData.ispMonthsCustom, onChange: handleInputChange, isPrimary: true })
                                 ),
                                 mode === 'double_refund' && e("div", { className: "md:col-span-2" },
@@ -400,7 +399,7 @@
                                                 e(SelectField, { label: "家庭上網方案", name: "networkMonth", optionsList: options.networkMonths, value: p.networkMonth, onChange: (ev)=>handlePlanChange(idx,ev), icon: "wifi", isPrimary: true }),
                                                 e("div", null, e("label", { className: "text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider" }, "應收金額 (自動帶入)"), e("input", { type: "number", name: "amount", value: p.amount, onChange: (ev)=>handlePlanChange(idx,ev), className: "w-full px-4 py-3 bg-white border border-[#14ccb9] rounded-lg font-black text-[#14ccb9] outline-none" }))
                                             ),
-                                            e("div", { className: "w-full pt-2" }, e("label", { className: "text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider" }, "SIM卡卡號"), e("input", { name: "simNumber", value: p.simNumber, onChange: (ev)=>handlePlanChange(idx,ev), className: "w-full px-4 py-4 bg-white border border-slate-200 rounded-lg font-bold outline-none focus:border-[#14ccb9]" }))
+                                            e("div", { className: "w-full pt-2" }, e("label", { className: "text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider" }, "SIM卡卡號"), e("input", { name: "simNumber", value: p.simNumber, onChange: (ev)=>handlePlanChange(idx, ev), className: "w-full px-4 py-4 bg-white border border-slate-200 rounded-lg font-bold outline-none focus:border-[#14ccb9]" }))
                                         )
                                     ))
                                 )
@@ -435,7 +434,7 @@
                                     e("div", { className: "space-y-1" },
                                         e("label", { className: "text-[11px] font-black text-slate-400 block uppercase tracking-wider" }, "是否需解約"),
                                         e("div", { className: "flex gap-2" },
-                                            e("div", { onClick: () => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '開通日'}})), className: `toggle-item ${currentData.isNeedTermination === '是' ? 'selected' : 'unselected'}` }, "是"),
+                                            e("div", { onClick: () => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '是'}})), className: `toggle-item ${currentData.isNeedTermination === '是' ? 'selected' : 'unselected'}` }, "是"),
                                             e("div", { onClick: () => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '否'}})), className: `toggle-item ${currentData.isNeedTermination === '否' ? 'selected' : 'unselected'}` }, "否")
                                         )
                                     ),
