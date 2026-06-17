@@ -353,7 +353,7 @@
                         e("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
                             isFinanceMode ? e(React.Fragment, null,
                                 e("div", { className: "md:col-span-2 grid grid-cols-2 gap-4" },
-                                    e(SelectField, { label: "地區", name: "region", optionsList: options.financeRegions} , {value: currentData.region, customValue: currentData.regionCustom, onChange: handleInputChange, isPrimary: true}),
+                                   e(SelectField, { label: "地區", name: "region", optionsList: options.financeRegions, value: currentData.region, customValue: currentData.regionCustom, onChange: handleInputChange, isPrimary: true }),
                                     mode === 'double_refund' ? e(SelectField, { label: "退款金額", name: "refundAmount", optionsList: options.refundAmounts, value: currentData.refundAmount, customValue: currentData.refundAmountCustom, onChange: handleInputChange, isPrimary: true }) : e(SelectField, { label: "入帳月份", name: "ispMonths", optionsList: options.financeMonths, value: currentData.ispMonths, customValue: currentData.ispMonthsCustom, onChange: handleInputChange, isPrimary: true })
                                 ),
                                 mode === 'double_refund' && e("div", { className: "md:col-span-2" },
