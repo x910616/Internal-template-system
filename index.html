@@ -7,156 +7,74 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
-        body { 
-            font-family: 'Noto Sans TC', sans-serif; 
-            background-color: #f8fafc;
-        }
-        .custom-shadow {
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-        }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
+        .custom-shadow { box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05); }
         .rounded-input { border-radius: 12px; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-        
-        .mode-btn {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 14px;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-            white-space: nowrap;
-        }
-        .mode-btn.active {
-            background-color: #14ccb9;
-            color: white;
-            box-shadow: 0 4px 10px rgba(20, 204, 185, 0.3);
-            border-color: transparent;
-        }
+        .mode-btn { display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 12px; font-weight: 800; font-size: 14px; transition: all 0.2s; border: 2px solid transparent; white-space: nowrap; }
+        .mode-btn.active { background-color: #14ccb9; color: white; box-shadow: 0 4px 10px rgba(20, 204, 185, 0.3); border-color: transparent; }
         .mode-btn.inactive-light { background-color: white; color: #475569; border-color: #e2e8f0; }
         .mode-btn.inactive-dark { background-color: #334155; color: white; border-color: #1e293b; }
         .mode-btn.inactive-gray { background-color: #e2e8f0; color: #475569; border-color: #cbd5e1; }
-
-        .toggle-item {
-            flex: 1;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            font-weight: 800;
-            font-size: 15px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            cursor: pointer;
-            border: 1px solid transparent;
-        }
-        .toggle-item.selected {
-            background-color: #14ccb9;
-            color: white;
-            box-shadow: 0 4px 12px rgba(20, 204, 185, 0.3);
-            border-color: #14ccb9;
-        }
-        .toggle-item.unselected {
-            background-color: white;
-            color: #94a3b8;
-            border-color: #e2e8f0;
-        }
-
-        .preview-content {
-            animation: subtle-pulse 0.2s ease-out;
-        }
-        @keyframes subtle-pulse {
-            0% { opacity: 0.95; transform: scale(0.998); }
-            100% { opacity: 1; transform: scale(1); }
-        }
+        .toggle-item { flex: 1; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; font-weight: 800; font-size: 15px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border: 1px solid transparent; }
+        .toggle-item.selected { background-color: #14ccb9; color: white; box-shadow: 0 4px 12px rgba(20, 204, 185, 0.3); border-color: #14ccb9; }
+        .toggle-item.unselected { background-color: white; color: #94a3b8; border-color: #e2e8f0; }
+        .preview-content { animation: subtle-pulse 0.2s ease-out; }
+        @keyframes subtle-pulse { 0% { opacity: 0.95; transform: scale(0.998); } 100% { opacity: 1; transform: scale(1); } }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
-    <script type="text/babel"
+    <script>
+        // 移除 Babel，直接用 React.createElement 改寫以符合原生瀏覽器解析
         const { useState, useEffect, useMemo } = React;
+        const e = React.createElement;
 
         const Icon = ({ name, size = 18, className = "" }) => {
             const icons = {
-                "truck": <path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2m15-5h-3m3 3h-3m3 3h-3M17 14l3-3 3 3M17 17l3 3 3-3M5 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm12 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" />,
-                "camera": <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" />,
-                "home": <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10" />,
-                "image": (
-                    <React.Fragment>
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                        <circle cx="8.5" cy="8.5" r="1.5" />
-                        <polyline points="21 15 16 10 5 21" />
-                    </React.Fragment>
+                "truck": e("path", { d: "M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2m15-5h-3m3 3h-3m3 3h-3M17 14l3-3 3 3M17 17l3 3 3-3M5 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm12 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" }),
+                "camera": e("path", { d: "M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2zM12 17a4 4 0 1 0 0-8 4 4 0 0 0 0 8z" }),
+                "home": e("path", { d: "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2zM9 22V12h6v10" }),
+                "image": e(React.Fragment, null, 
+                    e("rect", { x: "3", y: "3", width: "18", height: "18", rx: "2", ry: "2" }),
+                    e("circle", { cx: "8.5", cy: "8.5", r: "1.5" }),
+                    e("polyline", { points: "21 15 16 10 5 21" })
                 ),
-                "map-pin": (
-                    <React.Fragment>
-                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
-                        <circle cx="12" cy="10" r="3" />
-                    </React.Fragment>
+                "map-pin": e(React.Fragment, null,
+                    e("path", { d: "M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" }),
+                    e("circle", { cx: "12", cy: "10", r: "3" })
                 ),
-                "mail": (
-                    <React.Fragment>
-                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                        <polyline points="22,6 12,13 2,6" />
-                    </React.Fragment>
+                "mail": e(React.Fragment, null,
+                    e("path", { d: "M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" }),
+                    e("polyline", { points: "22,6 12,13 2,6" })
                 ),
-                "user": (
-                    <React.Fragment>
-                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                        <circle cx="12" cy="7" r="4" />
-                    </React.Fragment>
+                "user": e(React.Fragment, null,
+                    e("path", { d: "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" }),
+                    e("circle", { cx: "12", cy: "7", r: "4" })
                 ),
-                "trash-2": <path d="M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-6 5v6m4-6v6" />,
-                "chevron-down": <polyline points="6 9 12 15 18 9" />,
-                "wifi": <path d="M5 13a10 10 0 0 1 14 0M8.5 16.5a5 5 0 0 1 7 0M12 20h.01" />,
-                "clock": <React.Fragment><circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" /></React.Fragment>
+                "trash-2": e("path", { d: "M3 6h18m-2 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6m3 0V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m-6 5v6m4-6v6" }),
+                "chevron-down": e("polyline", { points: "6 9 12 15 18 9" }),
+                "wifi": e("path", { d: "M5 13a10 10 0 0 1 14 0M8.5 16.5a5 5 0 0 1 7 0M12 20h.01" }),
+                "clock": e(React.Fragment, null, e("circle", { cx: "12", cy: "12", r: "10" }), e("polyline", { points: "12 6 12 12 16 14" }))
             };
-            return (
-                <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                    {icons[name] || <circle cx="12" cy="12" r="10" />}
-                </svg>
+            return e("svg", { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: "2.5", strokeLinecap: "round", strokeLinejoin: "round", className: className }, 
+                icons[name] || e("circle", { cx: "12", cy: "12", r: "10" })
             );
         };
 
-        const initialPlanState = {
-            telecom: '', telecomCustom: '', contractType: '', contractTypeCustom: '',
-            planAmount: '', planAmountCustom: '', period: '30', periodCustom: '',
-            networkMonth: '24', amount: '0', simCard: '實體卡', simNumber: '', orderId: ''
-        };
-
-        const initialFormState = {
-            orderId: '', prepayId: '', customerName: '', customerId: '', 
-            buildingName: '', region: '', regionCustom: '', 
-            deliveryDate: '', activationDate: '', 
-            pickupTime: '12:00',
-            isSelfPickupPhoto: '否', isNeedTermination: '否', staff: '', staffCustom: '',
-            ispMonths: '24', ispMonthsCustom: '', refundAmount: '8900', refundAmountCustom: '',
-            addressType: '訂單地址', address: '',
-            plans: [{ ...initialPlanState }]
-        };
+        const initialPlanState = { telecom: '', telecomCustom: '', contractType: '', contractTypeCustom: '', planAmount: '', planAmountCustom: '', period: '30', periodCustom: '', networkMonth: '24', amount: '0', simCard: '實體卡', simNumber: '', orderId: '' };
+        const initialFormState = { orderId: '', prepayId: '', customerName: '', customerId: '', buildingName: '', region: '', regionCustom: '', deliveryDate: '', activationDate: '', pickupTime: '12:00', isSelfPickupPhoto: '否', isNeedTermination: '否', staff: '', staffCustom: '', ispMonths: '24', ispMonthsCustom: '', refundAmount: '8900', refundAmountCustom: '', addressType: '訂單地址', address: '', plans: [{ ...initialPlanState }] };
 
         function App() {
             const [activeCategory, setActiveCategory] = useState('dispatch');
             const [mode, setMode] = useState('pure_delivery');
             const [copied, setCopied] = useState(false);
             const [allFormData, setAllFormData] = useState({
-                pure_delivery: { ...initialFormState },
-                delivery_photo: { ...initialFormState },
-                install_delivery: { ...initialFormState },
-                install_photo_new: { ...initialFormState },
-                install_delivery_photo: { ...initialFormState },
-                self_pickup: { ...initialFormState },
-                mail_card: { ...initialFormState },
-                cht_renew: { ...initialFormState },
-                isp_renew: { ...initialFormState },
-                double_refund: { ...initialFormState },
+                pure_delivery: { ...initialFormState }, delivery_photo: { ...initialFormState }, install_delivery: { ...initialFormState }, install_photo_new: { ...initialFormState }, install_delivery_photo: { ...initialFormState }, self_pickup: { ...initialFormState }, mail_card: { ...initialFormState }, cht_renew: { ...initialFormState }, isp_renew: { ...initialFormState }, double_refund: { ...initialFormState }
             });
 
             const currentData = allFormData[mode];
@@ -191,12 +109,9 @@
                 const telecom = plan.telecom;
                 const type = plan.contractType;
                 const amount = plan.planAmount;
-                
-                // 3、4、8、9、13、16、19、30 這些月份金額都直接跳 0
                 const zeroMonths = ["3", "4", "8", "9", "13", "16", "19", "30"];
                 if (zeroMonths.includes(month)) return "0";
 
-                // 家庭上網 24 個月
                 if (month === "24") {
                     if (telecom === "中華") {
                         if (type === "新辦") {
@@ -229,7 +144,6 @@
                     }
                 }
 
-                // 家庭上網 14 個月
                 if (month === "14") {
                     if (telecom === "中華") {
                         if (type === "新辦") {
@@ -262,7 +176,6 @@
                     }
                 }
 
-                // 家庭上網 12 個月
                 if (month === "12") {
                     if (telecom === "中華") {
                         if (type === "新辦") {
@@ -302,33 +215,23 @@
                 const { name, value } = e.target;
                 setAllFormData(prev => ({ ...prev, [mode]: { ...prev[mode], [name]: value } }));
             };
-
-            const handlePlanChange = (index, e) => {
-                const { name, value } = e.target;
+            const handlePlanChange = (index, event) => {
+                const { name, value } = event.target;
                 setAllFormData(prev => {
                     const updatedPlans = [...prev[mode].plans];
                     let updatedPlan = { ...updatedPlans[index], [name]: value };
-                    
-                    // 派案模板中的應收金額自動計算邏輯
-                    if (!isFinanceMode) { 
-                        updatedPlan.amount = calculateAutoAmount(updatedPlan); 
-                    } 
-                    
+                    if (!isFinanceMode) { updatedPlan.amount = calculateAutoAmount(updatedPlan); } 
                     updatedPlans[index] = updatedPlan;
                     return { ...prev, [mode]: { ...prev[mode], plans: updatedPlans } };
                 });
             };
 
             const addNewPlan = () => {
-                setAllFormData(prev => ({
-                    ...prev, [mode]: { ...prev[mode], plans: [...prev[mode].plans, { ...initialPlanState, amount: '0' }] }
-                }));
+                setAllFormData(prev => ({ ...prev, [mode]: { ...prev[mode], plans: [...prev[mode].plans, { ...initialPlanState, amount: '0' }] } }));
             };
 
             const removePlan = (index) => {
-                setAllFormData(prev => ({
-                    ...prev, [mode]: { ...prev[mode], plans: prev[mode].plans.filter((_, i) => i !== index) }
-                }));
+                setAllFormData(prev => ({ ...prev, [mode]: { ...prev[mode], plans: prev[mode].plans.filter((_, i) => i !== index) } }));
             };
 
             const summaryText = useMemo(() => {
@@ -336,11 +239,12 @@
                 const fmtDate = (val) => val ? `${parseInt(val.split('-')[1])}/${parseInt(val.split('-')[2])}` : 'X/X';
                 const dateStr = fmtDate(data.deliveryDate);
                 const actDateStr = fmtDate(data.activationDate);
+            
                 const plansSummary = data.plans.map(p => {
                     const t = p.telecom === '其他' ? p.telecomCustom : p.telecom;
                     const c = p.contractType === '其他' ? p.contractTypeCustom : p.contractType;
                     const am = p.planAmount === '其他' ? p.planAmountCustom : p.planAmount;
-                    const pr = p.period === '其他' ? p.periodCustom : p.period;
+                    const pr = p.period === '開通日' || p.period === '其他' ? p.periodCustom : p.period;
                     return isFinanceMode ? `${c || ''}${am || ''}` : `【${t || ''}】${c || ''}${pr || ''}個月 / $${am || ''}`;
                 }).join('、');
                 const sims = data.plans.map(p => p.simNumber).filter(s => s).join('、');
@@ -370,7 +274,7 @@
                         return `［續約戶］可直接入帳${ispM}\n<${reg || ''}> <${data.buildingName || ''}> <${data.customerName || ''} ${data.customerId || ''}>\n雙網用戶${plansSummary}，加贈${ispM}ISP網路\n智生活訂單編號：${orderIdStr}\n門號開通日：${actDateStr}\n請協助入帳 ，謝謝！`;
                     case 'double_refund':
                         const regD = data.region === '其他' ? data.regionCustom : data.region;
-                        const ispMD = (data.ispMonths === '其他' ? data.ispMonthsCustom : data.ispMonths) + '個月';
+                        const ispMD = (data.ispMonths === '開通日' || data.ispMonths === '其他' ? data.ispMonthsCustom : data.ispMonths) + '個月';
                         const refA = data.refundAmount === '其他' ? data.refundAmountCustom : data.refundAmount;
                         return `${data.customerName} ${data.customerId}，全額退費$${refA}，請協助後續，謝謝。\n\n［退費］全額退費${refA}，重入帳${ispMD}\n<${regD || ''}> <${data.buildingName || ''}> <${data.customerName || ''} ${data.customerId || ''}>\n雙網用戶${plansSummary}，贈送${ispMD}ISP網路\n智生活訂單編號：${orderIdStr}\n門號開通日：${actDateStr}\n請協助入帳 ，謝謝！`;
                     default: return '';
@@ -379,23 +283,13 @@
 
             const handleCopy = () => {
                 if (!summaryText) return;
-                
-                const el = document.createElement('textarea');
-                el.value = summaryText;
-                document.body.appendChild(el); 
-                el.select(); 
-                document.execCommand('copy'); 
-                document.body.removeChild(el);
-                
-                setCopied(true); 
-                
-                setTimeout(() => {
-                    setCopied(false);
-                    setAllFormData(prev => ({
-                        ...prev, 
-                        [mode]: { ...initialFormState, plans: [{ ...initialPlanState }] }
-                    }));
-                }, 1000);
+                navigator.clipboard.writeText(summaryText).then(() => {
+                    setCopied(true);
+                    setTimeout(() => {
+                        setCopied(false);
+                        setAllFormData(prev => ({ ...prev, [mode]: { ...initialFormState, plans: [{ ...initialPlanState }] } }));
+                    }, 1000);
+                });
             };
 
             const ModeButtons = () => {
@@ -411,232 +305,168 @@
                     { id: 'isp_renew', label: 'ISP續約戶入帳', cat: 'finance', icon: 'user', style: 'light' },
                     { id: 'double_refund', label: '雙網退費', cat: 'finance', icon: 'user', style: 'light' }
                 ];
-                return (
-                    <div className="flex gap-3 overflow-x-auto no-scrollbar py-2">
-                        {items.filter(i => i.cat === activeCategory).map(item => {
-                            const isActive = mode === item.id;
-                            let currentClass = isActive ? "active" : (item.style === 'dark' ? "inactive-dark" : (item.style === 'gray' ? "inactive-gray" : "inactive-light"));
-                            return (
-                                <button key={item.id} onClick={() => setMode(item.id)} className={`mode-btn ${currentClass}`}>
-                                    <Icon name={item.icon} size={16} />
-                                    {item.label}
-                                </button>
-                            );
-                        })}
-                    </div>
+                return e("div", { className: "flex gap-3 overflow-x-auto no-scrollbar py-2" },
+                    items.filter(i => i.cat === activeCategory).map(item => {
+                        const isActive = mode === item.id;
+                        let currentClass = isActive ? "active" : (item.style === 'dark' ? "inactive-dark" : (item.style === 'gray' ? "inactive-gray" : "inactive-light"));
+                        return e("button", { key: item.id, onClick: () => setMode(item.id), className: `mode-btn ${currentClass}` },
+                            e(Icon, { name: item.icon, size: 16 }),
+                            item.label
+                        );
+                    })
                 );
             };
 
             const SelectField = ({ label, name, optionsList, value, customValue, onChange, icon, isPrimary = false, className = "", hideCustom = false, selectClassName = "" }) => (
-                <div className={`space-y-1 ${className}`}>
-                    <label className={`text-[11px] font-black uppercase tracking-wider block flex items-center gap-1 ${isPrimary ? 'text-[#14ccb9]' : 'text-slate-400'}`}>
-                        {icon && <Icon name={icon} size={10} />} {label}
-                    </label>
-                    <div className="relative">
-                        <select name={name} value={value} onChange={onChange} className={`w-full px-3 py-3 bg-white border ${isPrimary ? 'border-[#14ccb9]' : 'border-slate-200'} rounded-input font-bold outline-none appearance-none transition-all focus:ring-2 focus:ring-[#14ccb9]/20 ${selectClassName}`}>
-                            <option value="">請選擇</option>
-                            {optionsList.map(o => <option key={o} value={o}>{o + (['networkMonth', 'ispMonths'].includes(name) && o !== '其他' && !o.includes('個月') ? '個月' : '')}</option>)}
-                        </select>
-                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400"><Icon name="chevron-down" size={16}/></div>
-                    </div>
-                    {(!hideCustom && value === '其他') && <input name={`${name}Custom`} value={customValue || ''} onChange={onChange} placeholder="請輸入" className="w-full mt-2 px-3 py-2 border border-[#14ccb9] rounded-input text-[#14ccb9] font-bold text-sm outline-none bg-[#14ccb9]/5" />}
-                </div>
+                e("div", { className: `space-y-1 ${className}` },
+                    e("label", { className: `text-[11px] font-black uppercase tracking-wider block flex items-center gap-1 ${isPrimary ? 'text-[#14ccb9]' : 'text-slate-400'}` },
+                        icon && e(Icon, { name: icon, size: 10 }), " ", label
+                    ),
+                    e("div", { className: "relative" },
+                        e("select", { name: name, value: value, onChange: onChange, className: `w-full px-3 py-3 bg-white border ${isPrimary ? 'border-[#14ccb9]' : 'border-slate-200'} rounded-input font-bold outline-none appearance-none transition-all focus:ring-2 focus:ring-[#14ccb9]/20 ${selectClassName}` },
+                            e("option", { value: "" }, "請選擇"),
+                            optionsList.map(o => e("option", { key: o, value: o }, o + (['networkMonth', 'ispMonths'].includes(name) && o !== '其他' && !o.includes('個月') ? '個月' : '')))
+                        ),
+                        e("div", { className: "absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400" }, e(Icon, { name: "chevron-down", size: 16 }))
+                    ),
+                    (!hideCustom && value === '其他') && e("input", { name: `${name}Custom`, value: customValue || '', onChange: onChange, placeholder: "請輸入", className: "w-full mt-2 px-3 py-2 border border-[#14ccb9] rounded-input text-[#14ccb9] font-bold text-sm outline-none bg-[#14ccb9]/5" })
+                )
             );
 
-            return (
-                <div className="min-h-screen flex flex-col">
-                    <div className="sticky top-0 z-[100] bg-white border-b border-slate-200 shadow-sm">
-                        <header className="px-6 py-4 flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="text-2xl font-black text-slate-700">智生活 <span className="text-[#14ccb9]">SmaDay</span></div>
-                            </div>
-                            <button onClick={() => setAllFormData(prev => ({...prev, [mode]: { ...initialFormState, plans: [{ ...initialPlanState }] }}))} className="px-6 py-2.5 text-[#14ccb9] border-2 border-[#14ccb9] rounded-xl font-black text-sm hover:bg-[#14ccb9] hover:text-white transition-all">重設內容</button>
-                        </header>
-                        <nav className="px-6 flex bg-slate-50 border-b border-slate-100">
-                            {['dispatch', 'finance'].map(cat => (
-                                <button key={cat} onClick={() => {setActiveCategory(cat); setMode(cat === 'dispatch' ? 'pure_delivery' : 'isp_renew')}} className={`px-8 py-3.5 font-black text-sm border-b-2 transition-all ${activeCategory === cat ? 'border-[#14ccb9] text-[#14ccb9]' : 'border-transparent text-slate-400'}`}>{cat === 'dispatch' ? '派案模板' : '帳務模板'}</button>
-                            ))}
-                        </nav>
-                        <div className="px-6 py-3 bg-white">
-                            <ModeButtons />
-                        </div>
-                    </div>
-
-                    <main className="flex-1 px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8">
-                        <div className="lg:col-span-7 bg-white p-8 rounded-[32px] custom-shadow border border-slate-100 space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {isFinanceMode ? (
-                                    <>
-                                        <div className="md:col-span-2 grid grid-cols-2 gap-4">
-                                            <SelectField label="地區" name="region" optionsList={options.financeRegions} value={currentData.region} customValue={currentData.regionCustom} onChange={handleInputChange} isPrimary={true} />
-                                            {mode === 'double_refund' ? (
-                                                <SelectField label="退款金額" name="refundAmount" optionsList={options.refundAmounts} value={currentData.refundAmount} customValue={currentData.refundAmountCustom} onChange={handleInputChange} isPrimary={true} />
-                                            ) : (
-                                                <SelectField label="入帳月份" name="ispMonths" optionsList={options.financeMonths} value={currentData.ispMonths} customValue={currentData.ispMonthsCustom} onChange={handleInputChange} isPrimary={true} />
-                                            )}
-                                        </div>
-                                        {mode === 'double_refund' && (
-                                            <div className="md:col-span-2">
-                                                <SelectField label="重入帳月份" name="ispMonths" optionsList={options.financeMonths} value={currentData.ispMonths} customValue={currentData.ispMonthsCustom} onChange={handleInputChange} isPrimary={true} />
-                                            </div>
-                                        )}
-                                        <div className="md:col-span-2 grid grid-cols-2 gap-4">
-                                            <div><label className="text-xs font-black text-slate-400 block mb-1">社區名稱</label><input name="buildingName" value={currentData.buildingName} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
-                                            <div><label className="text-xs font-black text-slate-400 block mb-1">客戶姓名</label><input name="customerName" value={currentData.customerName} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
-                                        </div>
-                                        <div className="md:col-span-2 grid grid-cols-2 gap-4">
-                                            <div><label className="text-xs font-black text-slate-400 block mb-1">客戶 ID</label><input name="customerId" value={currentData.customerId} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
-                                            <div><label className="text-xs font-black text-slate-400 block mb-1">訂單編號</label><input name="orderId" value={currentData.orderId} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
-                                        </div>
-                                        <div className="md:col-span-2 border-t pt-8">
-                                            <div className="flex justify-between items-center mb-6">
-                                                <span className="font-black text-lg text-slate-700 flex items-center gap-2">門號資費設定</span>
-                                            </div>
-                                            <div className="p-6 bg-slate-50 rounded-[24px] border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-5 mb-6">
-                                                <SelectField label="方案類型" name="contractType" optionsList={["攜碼", "新辦"]} value={currentData.plans[0].contractType} onChange={(e)=>handlePlanChange(0, e)} isPrimary={true} />
-                                                <SelectField label="合約資費" name="planAmount" optionsList={options.planAmount} value={currentData.plans[0].planAmount} customValue={currentData.plans[0].planAmountCustom} onChange={(e)=>handlePlanChange(0, e)} isPrimary={true} />
-                                            </div>
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                <div>
-                                                    <label className="text-[11px] font-black text-slate-400 block uppercase mb-1">門號預定開通日期</label>
-                                                    <input type="date" name="activationDate" value={currentData.activationDate} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" />
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        <div className="md:col-span-2 grid grid-cols-2 gap-4">
-                                            <div><label className="text-xs font-black text-slate-400 block mb-1">客戶姓名</label><input name="customerName" value={currentData.customerName} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
-                                            <div><label className="text-xs font-black text-slate-400 block mb-1">預繳金編號</label><input name="prepayId" value={currentData.prepayId} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" /></div>
-                                        </div>
-                                        <div className="md:col-span-2 border-t pt-8">
-                                            <div className="flex justify-between items-center mb-6">
-                                                <span className="font-black text-lg text-slate-700 flex items-center gap-2">門號資費清單 <span className="text-xs bg-[#14ccb9]/10 text-[#14ccb9] px-2 py-0.5 rounded-full">共 {currentData.plans.length} 門</span></span>
-                                                <button onClick={addNewPlan} className="px-4 py-2 bg-[#14ccb9] text-white rounded-xl text-sm font-black hover:bg-[#11ae9e] transition-all flex items-center gap-1">＋ 新增門號</button>
-                                            </div>
-                                            {currentData.plans.map((p, idx) => (
-                                                <div key={idx} className="p-6 bg-slate-50 rounded-[24px] border border-slate-100 mb-6 flex flex-col gap-5 relative group">
-                                                    {idx > 0 && <button onClick={() => removePlan(idx)} className="absolute -top-2 -right-2 bg-white border shadow-sm p-2 rounded-full text-rose-400 opacity-0 group-hover:opacity-100 transition-all"><Icon name="trash-2" size={16}/></button>}
-                                                    <div className="border-b border-slate-200/50 pb-1 mb-1 flex items-center justify-between">
-                                                        <span className="text-[10px] font-black text-[#14ccb9] uppercase tracking-[0.2em]">門號 {idx+1} </span>
-                                                    </div>
-                                                    <div className="w-full">
-                                                        <label className="text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider">智生活訂單編號</label>
-                                                        <input name="orderId" value={p.orderId} onChange={(e)=>handlePlanChange(idx, e)} className="w-full px-4 py-3 bg-white border border-slate-200 rounded-lg font-bold outline-none focus:border-[#14ccb9]" />
-                                                    </div>
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                                        <SelectField label="電信商" name="telecom" optionsList={options.telecom} value={p.telecom} customValue={p.telecomCustom} onChange={(e)=>handlePlanChange(idx,e)} />
-                                                        <SelectField label="合約類型" name="contractType" optionsList={options.contractType} value={p.contractType} customValue={p.contractTypeCustom} onChange={(e)=>handlePlanChange(idx,e)} />
-                                                        <SelectField label="月租費" name="planAmount" optionsList={options.planAmount} value={p.planAmount} customValue={p.planAmountCustom} onChange={(e)=>handlePlanChange(idx,e)} />
-                                                        <SelectField label="合約期" name="period" optionsList={options.period} value={p.period} customValue={p.periodCustom} onChange={(e)=>handlePlanChange(idx,e)} />
-                                                        <SelectField label="家庭上網方案" name="networkMonth" optionsList={options.networkMonths} value={p.networkMonth} onChange={(e)=>handlePlanChange(idx,e)} icon="wifi" isPrimary={true} />
-                                                        <div>
-                                                            <label className="text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider">應收金額 (自動帶入)</label>
-                                                            <input type="number" name="amount" value={p.amount} onChange={(e)=>handlePlanChange(idx,e)} className="w-full px-4 py-3 bg-white border border-[#14ccb9] rounded-lg font-black text-[#14ccb9] outline-none" />
-                                                        </div>
-                                                    </div>
-                                                    <div className="w-full pt-2">
-                                                        <label className="text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider">SIM卡卡號</label>
-                                                        <input name="simNumber" value={p.simNumber} onChange={(e)=>handlePlanChange(idx,e)} className="w-full px-4 py-4 bg-white border border-slate-200 rounded-lg font-bold outline-none focus:border-[#14ccb9]" />
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    </>
-                                )}
-                                {!isFinanceMode && (
-                                    <div className="md:col-span-2 border-t pt-8 space-y-6">
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <label className="text-[11px] font-black text-slate-400 block uppercase mb-1">{mode === 'self_pickup' ? '取卡日期' : (mode === 'mail_card' ? '寄件日期' : '預定交付日期')}</label>
-                                                <input type="date" name="deliveryDate" value={currentData.deliveryDate} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" />
-                                            </div>
-                                            <div>
-                                                <label className="text-[11px] font-black text-slate-400 block uppercase mb-1">預定開通日期</label>
-                                                <input type="date" name="activationDate" value={currentData.activationDate} onChange={handleInputChange} className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" />
-                                            </div>
-                                        </div>
-
-                                        {mode === 'self_pickup' ? (
-                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-                                                <div className="space-y-1">
-                                                    <label className="text-[11px] font-black text-[#14ccb9] block uppercase tracking-wider flex items-center gap-1">
-                                                        <Icon name="clock" size={12} /> 取卡時間選擇
-                                                    </label>
-                                                    <div className="relative">
-                                                        <select name="pickupTime" value={currentData.pickupTime} onChange={handleInputChange} className="w-full px-3 py-3 bg-white border border-[#14ccb9] rounded-input font-black outline-none appearance-none transition-all focus:ring-2 focus:ring-[#14ccb9]/20">
-                                                            {options.timeSlots.map(t => <option key={t} value={t}>{t}</option>)}
-                                                        </select>
-                                                        <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#14ccb9]"><Icon name="chevron-down" size={14}/></div>
-                                                    </div>
-                                                </div>
-                                                <SelectField label="派案負責人員" name="staff" optionsList={options.staff} value={currentData.staff} customValue={currentData.staffCustom} onChange={handleInputChange} isPrimary={true} />
-                                            </div>
-                                        ) : (
-                                            <div className="grid grid-cols-2 gap-4 items-start">
-                                                <SelectField label="派案負責人員" name="staff" optionsList={options.staff} value={currentData.staff} customValue={currentData.staffCustom} onChange={handleInputChange} isPrimary={true} />
-                                                <div className="space-y-1">
-                                                    <label className="text-[11px] font-black text-slate-400 block uppercase tracking-wider">是否需解約</label>
-                                                    <div className="flex gap-2">
-                                                        <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '是'}}))} className={`toggle-item ${currentData.isNeedTermination === '是' ? 'selected' : 'unselected'}`}>是</div>
-                                                        <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '否'}}))} className={`toggle-item ${currentData.isNeedTermination === '否' ? 'selected' : 'unselected'}`}>否</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {mode === 'self_pickup' && (
-                                            <div className="grid grid-cols-2 gap-4">
-                                                <div className="space-y-1">
-                                                    <label className="text-[11px] font-black text-slate-400 block uppercase tracking-wider">是否需解約</label>
-                                                    <div className="flex gap-2">
-                                                        <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '是'}}))} className={`toggle-item ${currentData.isNeedTermination === '是' ? 'selected' : 'unselected'}`}>是</div>
-                                                        <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '否'}}))} className={`toggle-item ${currentData.isNeedTermination === '否' ? 'selected' : 'unselected'}`}>否</div>
-                                                    </div>
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <label className="text-[11px] font-black text-slate-400 block uppercase tracking-wider">是否需拍照</label>
-                                                    <div className="flex gap-2">
-                                                        <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isSelfPickupPhoto: '是'}}))} className={`toggle-item ${currentData.isSelfPickupPhoto === '是' ? 'selected' : 'unselected'}`}>是</div>
-                                                        <div onClick={() => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isSelfPickupPhoto: '否'}}))} className={`toggle-item ${currentData.isSelfPickupPhoto === '否' ? 'selected' : 'unselected'}`}>否</div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-                        <div className="lg:col-span-5">
-                            <div className="bg-[#1e293b] rounded-[32px] p-8 sticky top-40 custom-shadow border border-slate-700">
-                                <div className="flex justify-between items-center mb-6">
-                                    <h3 className="text-white font-black tracking-widest flex items-center gap-2">
-                                        <span className="w-2 h-5 bg-[#14ccb9] rounded-full"></span> 
-                                        即時預覽
-                                    </h3>
-                                    <button 
-                                        onClick={handleCopy} 
-                                        disabled={!summaryText}
-                                        className={`px-6 py-2.5 rounded-xl font-black text-sm transition-all shadow-lg active:scale-95 ${!summaryText ? 'bg-slate-700 text-slate-500 cursor-not-allowed' : copied ? 'bg-emerald-500 text-white' : 'bg-[#14ccb9] text-white hover:bg-[#11ae9e]'}`}
-                                    >
-                                        {copied ? '已複製並清空' : '一鍵複製'}
-                                    </button>
-                                </div>
-                                <div className="bg-slate-900/50 rounded-2xl p-6 border border-slate-800 min-h-[450px] overflow-hidden">
-                                    <div key={summaryText} className="preview-content">
-                                        <pre className="text-slate-300 text-sm font-mono whitespace-pre-wrap leading-relaxed select-all">
-                                            {summaryText || '請開始填寫左側資訊以產生即時預覽...'}
-                                        </pre>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </main>
-                </div>
+            return e("div", { className: "min-h-screen flex flex-col" },
+                e("div", { className: "sticky top-0 z-[100] bg-white border-b border-slate-200 shadow-sm" },
+                    e("header", { className: "px-6 py-4 flex items-center justify-between" },
+                        e("div", { className: "flex items-center gap-3" },
+                            e("div", { className: "text-2xl font-black text-slate-700" }, "智生活 ", e("span", { className: "text-[#14ccb9]" }, "SmaDay"))
+                        ),
+                        e("button", { onClick: () => setAllFormData(prev => ({...prev, [mode]: { ...initialFormState, plans: [{ ...initialPlanState }] }})), className: "px-6 py-2.5 text-[#14ccb9] border-2 border-[#14ccb9] rounded-xl font-black text-sm hover:bg-[#14ccb9] hover:text-white transition-all" }, "重設內容")
+                    ),
+                    e("nav", { className: "px-6 flex bg-slate-50 border-b border-slate-100" },
+                        ['dispatch', 'finance'].map(cat => (
+                            e("button", { key: cat, onClick: () => { setActiveCategory(cat); setMode(cat === 'dispatch' ? 'pure_delivery' : 'isp_renew') }, className: `px-8 py-3.5 font-black text-sm border-b-2 transition-all ${activeCategory === cat ? 'border-[#14ccb9] text-[#14ccb9]' : 'border-transparent text-slate-400'}` }, cat === 'dispatch' ? '派案模板' : '帳務模板')
+                        ))
+                    ),
+                    e("div", { className: "px-6 py-3 bg-white" }, e(ModeButtons, null))
+                ),
+                e("main", { className: "flex-1 px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8" },
+                    e("div", { className: "lg:col-span-7 bg-white p-8 rounded-[32px] custom-shadow border border-slate-100 space-y-8" },
+                        e("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-6" },
+                            isFinanceMode ? e(React.Fragment, null,
+                                e("div", { className: "md:col-span-2 grid grid-cols-2 gap-4" },
+                                    e(SelectField, { label: "地區", name: "region", optionsList: options.financeRegions} , {value: currentData.region, customValue: currentData.regionCustom, onChange: handleInputChange, isPrimary: true}),
+                                    mode === 'double_refund' ? e(SelectField, { label: "退款金額", name: "refundAmount", optionsList: options.refundAmounts, value: currentData.refundAmount, customValue: currentData.refundAmountCustom, onChange: handleInputChange, isPrimary: true }) : e(SelectField, { label: "入帳月份", name: "ispMonths", optionsList: options.financeMonths, value: currentData.ispMonths, customValue: currentData.ispMonthsCustom, onChange: handleInputChange, isPrimary: true })
+                                ),
+                                mode === 'double_refund' && e("div", { className: "md:col-span-2" },
+                                    e(SelectField, { label: "重入帳月份", name: "ispMonths", optionsList: options.financeMonths, value: currentData.ispMonths, customValue: currentData.ispMonthsCustom, onChange: handleInputChange, isPrimary: true })
+                                ),
+                                e("div", { className: "md:col-span-2 grid grid-cols-2 gap-4" },
+                                    e("div", null, e("label", { className: "text-xs font-black text-slate-400 block mb-1" }, "社區名稱"), e("input", { name: "buildingName", value: currentData.buildingName, onChange: handleInputChange, className: "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" })),
+                                    e("div", null, e("label", { className: "text-xs font-black text-slate-400 block mb-1" }, "客戶姓名"), e("input", { name: "customerName", value: currentData.customerName, onChange: handleInputChange, className: "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" }))
+                                ),
+                                e("div", { className: "md:col-span-2 grid grid-cols-2 gap-4" },
+                                    e("div", null, e("label", { className: "text-xs font-black text-slate-400 block mb-1" }, "客戶 ID"), e("input", { name: "customerId", value: currentData.customerId, onChange: handleInputChange, className: "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" })),
+                                    e("div", null, e("label", { className: "text-xs font-black text-slate-400 block mb-1" }, "訂單編號"), e("input", { name: "orderId", value: currentData.orderId, onChange: handleInputChange, className: "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" }))
+                                ),
+                                e("div", { className: "md:col-span-2 border-t pt-8" },
+                                    e("div", { className: "flex justify-between items-center mb-6" }, e("span", { className: "font-black text-lg text-slate-700 flex items-center gap-2" }, "門號資費設定")),
+                                    e("div", { className: "p-6 bg-slate-50 rounded-[24px] border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-5 mb-6" },
+                                        e(SelectField, { label: "方案類型", name: "contractType", optionsList: ["攜碼", "新辦"], value: currentData.plans[0].contractType, onChange: (e)=>handlePlanChange(0, e), isPrimary: true }),
+                                        e(SelectField, { label: "合約資費", name: "planAmount", optionsList: options.planAmount, value: currentData.plans[0].planAmount, customValue: currentData.plans[0].planAmountCustom, onChange: (e)=>handlePlanChange(0, e), isPrimary: true })
+                                    ),
+                                    e("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4" },
+                                        e("div", null, e("label", { className: "text-[11px] font-black text-slate-400 block uppercase mb-1" }, "門號預定開通日期"), e("input", { type: "date", name: "activationDate", value: currentData.activationDate, onChange: handleInputChange, className: "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" }))
+                                    )
+                                )
+                            ) : e(React.Fragment, null,
+                                e("div", { className: "md:col-span-2 grid grid-cols-2 gap-4" },
+                                    e("div", null, e("label", { className: "text-xs font-black text-slate-400 block mb-1" }, "客戶姓名"), e("input", { name: "customerName", value: currentData.customerName, onChange: handleInputChange, className: "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" })),
+                                    e("div", null, e("label", { className: "text-xs font-black text-slate-400 block mb-1" }, "預繳金編號"), e("input", { name: "prepayId", value: currentData.prepayId, onChange: handleInputChange, className: "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" }))
+                                ),
+                                e("div", { className: "md:col-span-2 border-t pt-8" },
+                                    e("div", { className: "flex justify-between items-center mb-6" },
+                                        e("span", { className: "font-black text-lg text-slate-700 flex items-center gap-2" }, "門號資費清單 ", e("span", { className: "text-xs bg-[#14ccb9]/10 text-[#14ccb9] px-2 py-0.5 rounded-full" }, `共 ${currentData.plans.length} 門`)),
+                                        e("button", { onClick: addNewPlan, className: "px-4 py-2 bg-[#14ccb9] text-white rounded-xl text-sm font-black hover:bg-[#11ae9e] transition-all flex items-center gap-1" }, "＋ 新增門號")
+                                    ),
+                                    currentData.plans.map((p, idx) => (
+                                        e("div", { key: idx, className: "p-6 bg-slate-50 rounded-[24px] border border-slate-100 mb-6 flex flex-col gap-5 relative group" },
+                                            idx > 0 && e("button", { onClick: () => removePlan(idx), className: "absolute -top-2 -right-2 bg-white border shadow-sm p-2 rounded-full text-rose-400 opacity-0 group-hover:opacity-100 transition-all" }, e(Icon, { name: "trash-2", size: 16 })),
+                                            e("div", { className: "border-b border-slate-200/50 pb-1 mb-1 flex items-center justify-between" }, e("span", { className: "text-[10px] font-black text-[#14ccb9] uppercase tracking-[0.2em]" }, `門號 ${idx+1}`)),
+                                            e("div", { className: "w-full" }, e("label", { className: "text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider" }, "智生活訂單編號"), e("input", { name: "orderId", value: p.orderId, onChange: (ev)=>handlePlanChange(idx, ev), className: "w-full px-4 py-3 bg-white border border-slate-200 rounded-lg font-bold outline-none focus:border-[#14ccb9]" })),
+                                            e("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-5" },
+                                                e(SelectField, { label: "電信商", name: "telecom", optionsList: options.telecom, value: p.telecom, customValue: p.telecomCustom, onChange: (ev)=>handlePlanChange(idx,ev) }),
+                                                e(SelectField, { label: "合約類型", name: "contractType", optionsList: options.contractType, value: p.contractType, customValue: p.contractTypeCustom, onChange: (ev)=>handlePlanChange(idx,ev) }),
+                                                e(SelectField, { label: "月租費", name: "planAmount", optionsList: options.planAmount, value: p.planAmount, customValue: p.planAmountCustom, onChange: (ev)=>handlePlanChange(idx,ev) }),
+                                                e(SelectField, { label: "合約期", name: "period", optionsList: options.period, value: p.period, customValue: p.periodCustom, onChange: (ev)=>handlePlanChange(idx,ev) }),
+                                                e(SelectField, { label: "家庭上網方案", name: "networkMonth", optionsList: options.networkMonths, value: p.networkMonth, onChange: (ev)=>handlePlanChange(idx,ev), icon: "wifi", isPrimary: true }),
+                                                e("div", null, e("label", { className: "text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider" }, "應收金額 (自動帶入)"), e("input", { type: "number", name: "amount", value: p.amount, onChange: (ev)=>handlePlanChange(idx,ev), className: "w-full px-4 py-3 bg-white border border-[#14ccb9] rounded-lg font-black text-[#14ccb9] outline-none" }))
+                                            ),
+                                            e("div", { className: "w-full pt-2" }, e("label", { className: "text-[11px] font-black text-slate-400 block mb-1 uppercase tracking-wider" }, "SIM卡卡號"), e("input", { name: "simNumber", value: p.simNumber, onChange: (ev)=>handlePlanChange(idx,ev), className: "w-full px-4 py-4 bg-white border border-slate-200 rounded-lg font-bold outline-none focus:border-[#14ccb9]" }))
+                                        )
+                                    ))
+                                )
+                            ),
+                            !isFinanceMode && e("div", { className: "md:col-span-2 border-t pt-8 space-y-6" },
+                                e("div", { className: "grid grid-cols-2 gap-4" },
+                                    e("div", null, e("label", { className: "text-[11px] font-black text-slate-400 block uppercase mb-1" }, mode === 'self_pickup' ? '取卡日期' : (mode === 'mail_card' ? '寄件日期' : '預定交付日期')), e("input", { type: "date", name: "deliveryDate", value: currentData.deliveryDate, onChange: handleInputChange, className: "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" })),
+                                    e("div", null, e("label", { className: "text-[11px] font-black text-slate-400 block uppercase mb-1" }, "預定開通日期"), e("input", { type: "date", name: "activationDate", value: currentData.activationDate, onChange: handleInputChange, className: "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" }))
+                                ),
+                                mode === 'self_pickup' ? e("div", { className: "grid grid-cols-1 md:grid-cols-2 gap-4 items-end" },
+                                    e("div", { className: "space-y-1" },
+                                        e("label", { className: "text-[11px] font-black text-[#14ccb9] block uppercase tracking-wider flex items-center gap-1" }, e(Icon, { name: "clock", size: 12 }), " 取卡時間選擇"),
+                                        e("div", { className: "relative" },
+                                            e("select", { name: "pickupTime", value: currentData.pickupTime, onChange: handleInputChange, className: "w-full px-3 py-3 bg-white border border-[#14ccb9] rounded-input font-black outline-none appearance-none transition-all focus:ring-2 focus:ring-[#14ccb9]/20" },
+                                                options.timeSlots.map(t => e("option", { key: t, value: t }, t))
+                                            ),
+                                            e("div", { className: "absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[#14ccb9]" }, e(Icon, { name: "chevron-down", size: 14 }))
+                                        )
+                                    ),
+                                    e(SelectField, { label: "派案負責人員", name: "staff", optionsList: options.staff, value: currentData.staff, customValue: currentData.staffCustom, onChange: handleInputChange, isPrimary: true })
+                                ) : e("div", { className: "grid grid-cols-2 gap-4 items-start" },
+                                    e(SelectField, { label: "派案負責人員", name: "staff", optionsList: options.staff, value: currentData.staff, customValue: currentData.staffCustom, onChange: handleInputChange, isPrimary: true }),
+                                    e("div", { className: "space-y-1" },
+                                        e("label", { className: "text-[11px] font-black text-slate-400 block uppercase tracking-wider" }, "是否需解約"),
+                                        e("div", { className: "flex gap-2" },
+                                            e("div", { onClick: () => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '是'}})), className: `toggle-item ${currentData.isNeedTermination === '是' ? 'selected' : 'unselected'}` }, "是"),
+                                            e("div", { onClick: () => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '否'}})), className: `toggle-item ${currentData.isNeedTermination === '否' ? 'selected' : 'unselected'}` }, "否")
+                                        )
+                                    )
+                                ),
+                                mode === 'self_pickup' && e("div", { className: "grid grid-cols-2 gap-4" },
+                                    e("div", { className: "space-y-1" },
+                                        e("label", { className: "text-[11px] font-black text-slate-400 block uppercase tracking-wider" }, "是否需解約"),
+                                        e("div", { className: "flex gap-2" },
+                                            e("div", { onClick: () => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '開通日'}})), className: `toggle-item ${currentData.isNeedTermination === '是' ? 'selected' : 'unselected'}` }, "是"),
+                                            e("div", { onClick: () => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isNeedTermination: '否'}})), className: `toggle-item ${currentData.isNeedTermination === '否' ? 'selected' : 'unselected'}` }, "否")
+                                        )
+                                    ),
+                                    e("div", { className: "space-y-1" },
+                                        e("label", { className: "text-[11px] font-black text-slate-400 block uppercase tracking-wider" }, "是否需拍照"),
+                                        e("div", { className: "flex gap-2" },
+                                            e("div", { onClick: () => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isSelfPickupPhoto: '是'}})), className: `toggle-item ${currentData.isSelfPickupPhoto === '是' ? 'selected' : 'unselected'}` }, "是"),
+                                            e("div", { onClick: () => setAllFormData(prev => ({...prev, [mode]: {...prev[mode], isSelfPickupPhoto: '否'}})), className: `toggle-item ${currentData.isSelfPickupPhoto === '否' ? 'selected' : 'unselected'}` }, "否")
+                                        )
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    e("div", { className: "lg:col-span-5" },
+                        e("div", { className: "bg-[#1e293b] rounded-[32px] p-8 sticky top-40 custom-shadow border border-slate-700" },
+                            e("div", { className: "flex justify-between items-center mb-6" },
+                                e("h3", { className: "text-white font-black tracking-widest flex items-center gap-2" }, e("span", { className: "w-2 h-5 bg-[#14ccb9] rounded-full" }), "即時預覽"),
+                                e("button", { onClick: handleCopy, disabled: !summaryText, className: `px-6 py-2.5 rounded-xl font-black text-sm transition-all shadow-lg active:scale-95 ${!summaryText ? 'bg-slate-700 text-slate-500 cursor-not-allowed' : copied ? 'bg-emerald-500 text-white' : 'bg-[#14ccb9] text-white hover:bg-[#11ae9e]'}` }, copied ? '已複製並清空' : '一鍵複製')
+                            ),
+                            e("div", { className: "bg-slate-900/50 rounded-2xl p-6 border border-slate-800 min-h-[450px] overflow-hidden" },
+                                e("div", { key: summaryText, className: "preview-content" },
+                                    e("pre", { className: "text-slate-300 text-sm font-mono whitespace-pre-wrap leading-relaxed select-all" }, summaryText || '請開始填寫左側資訊以產生即時預覽...')
+                                )
+                            )
+                        )
+                    )
+                )
             );
         }
-        ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+        ReactDOM.createRoot(document.getElementById('root')).render(e(App));
     </script>
 </body>
 </html>
