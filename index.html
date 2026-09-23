@@ -97,7 +97,7 @@
                 planAmount: ["399", "599", "699", "799", "999", "1399", "其他"],
                 period: ["30", "24", "其他"],
                 financeRegions: ["汐止", "台北", "桃園", "新竹", "台中", "高雄", "台南", "其他"],
-                networkMonths: ["3", "4", "6", "8", "9", "12", "13", "14", "16", "19", "24", "30", "其他"],
+                networkMonths: ["3", "4", "6", "7", "8", "9", "10", "11", "12", "13", "14", "16", "17", "19", "24", "30", "其他"],
                 financeMonths: ["3", "4", "6", "8", "9", "12", "13", "14", "16", "19", "24", "24+1", "24+2", "30", "其他"],
                 refundAmounts: ["8900", "6000", "5400", "其他"],
                 timeSlots: generateTimeOptions()
@@ -114,29 +114,29 @@
                 if (month === "24") {
                     if (telecom === "中華") {
                         if (type === "新辦") {
-                            if (amount === "599") return "6400";
+                            if (amount === "599") return "6900";
                             if (amount === "699") return "7900";
-                            if (amount === "799") return "3900";
+                            if (amount === "799") return "4400";
                             if (amount === "999") return "1900";
                             if (amount === "1399") return "0";
                         } else if (type === "攜碼") {
-                            if (amount === "599") return "5900";
+                            if (amount === "599") return "6400";
                             if (amount === "699") return "7400";
-                            if (amount === "799") return "2900";
+                            if (amount === "799") return "3400";
                             if (amount === "999") return "0";
                             if (amount === "1399") return "0";
                         }
                     } else if (telecom === "遠傳") {
                         if (type === "新辦") {
                             if (amount === "399") return "7900";
-                            if (amount === "599") return "5900";
-                            if (amount === "799") return "3900";
+                            if (amount === "599") return "6900";
+                            if (amount === "799") return "4400";
                             if (amount === "999") return "1900";
                             if (amount === "1399") return "0";
                         } else if (type === "攜碼") {
                             if (amount === "399") return "7400";
-                            if (amount === "599") return "5400";
-                            if (amount === "799") return "2900";
+                            if (amount === "599") return "6400";
+                            if (amount === "799") return "3400";
                             if (amount === "999") return "0";
                             if (amount === "1399") return "0";
                         }
@@ -146,29 +146,29 @@
                 if (month === "14") {
                     if (telecom === "中華") {
                         if (type === "新辦") {
-                            if (amount === "599") return "3500";
+                            if (amount === "599") return "4000";
                             if (amount === "699") return "5000";
-                            if (amount === "799") return "1000";
+                            if (amount === "799") return "1500";
                             if (amount === "999") return "0";
                             if (amount === "1399") return "0";
                         } else if (type === "攜碼") {
-                            if (amount === "599") return "3000";
+                            if (amount === "599") return "3500";
                             if (amount === "699") return "4500";
-                            if (amount === "799") return "0";
+                            if (amount === "799") return "500";
                             if (amount === "999") return "0";
                             if (amount === "1399") return "0";
                         }
                     } else if (telecom === "遠傳") {
                         if (type === "新辦") {
                             if (amount === "399") return "5000";
-                            if (amount === "599") return "3000";
-                            if (amount === "799") return "1000";
+                            if (amount === "599") return "4000";
+                            if (amount === "799") return "1500";
                             if (amount === "999") return "0";
                             if (amount === "1399") return "0";
                         } else if (type === "攜碼") {
                             if (amount === "399") return "4500";
-                            if (amount === "599") return "2500";
-                            if (amount === "799") return "0";
+                            if (amount === "599") return "3500";
+                            if (amount === "799") return "500";
                             if (amount === "999") return "0";
                             if (amount === "1399") return "0";
                         }
@@ -178,13 +178,13 @@
                 if (month === "12") {
                     if (telecom === "中華") {
                         if (type === "新辦") {
-                            if (amount === "599") return "2900";
+                            if (amount === "599") return "3400";
                             if (amount === "699") return "4400";
-                            if (amount === "799") return "400";
+                            if (amount === "799") return "900";
                             if (amount === "999") return "0";
                             if (amount === "1399") return "0";
                         } else if (type === "攜碼") {
-                            if (amount === "599") return "2400";
+                            if (amount === "599") return "2900";
                             if (amount === "699") return "3900";
                             if (amount === "799") return "0";
                             if (amount === "999") return "0";
@@ -193,8 +193,8 @@
                     } else if (telecom === "遠傳") {
                         if (type === "新辦") {
                             if (amount === "399") return "4400";
-                            if (amount === "599") return "2400";
-                            if (amount === "799") return "400";
+                            if (amount === "599") return "3400";
+                            if (amount === "799") return "900";
                             if (amount === "999") return "0";
                             if (amount === "1399") return "0";
                         } else if (type === "攜碼") {
