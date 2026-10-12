@@ -96,9 +96,10 @@
                 contractType: ["攜碼", "新辦", "續約", "其他"],
                 planAmount: ["399", "599", "699", "799", "999", "1399", "其他"],
                 period: ["30", "24", "其他"],
-                financeRegions: ["汐止", "台北", "桃園", "新竹", "台中", "高雄", "台南", "其他"],
-                networkMonths: ["3", "4", "6", "7", "8", "9", "10", "11", "12", "13", "14", "16", "17", "19", "24", "30", "其他"],
-                financeMonths: ["3", "4", "6", "8", "9", "12", "13", "14", "16", "19", "24", "24+1", "24+2", "30", "其他"],
+                financeRegions: ["汐止", "淡水", "台北", "桃園", "新竹", "台中", "高雄", "台南", "其他"],
+                networkMonths: ["3", "4", "5", "6", "7", "10", "12", "14", "17", "24", "30", "其他"],
+                ispRenewMonths: ["3", "4", "5", "6", "7", "10", "12", "14", "17", "24", "30", "14+1", "24+1", "24+2", "其他"],
+                doubleRefundMonths: ["14+1", "24", "30", "24+1", "24+2", "其他"],
                 refundAmounts: ["8900", "6000", "5400", "其他"],
                 timeSlots: generateTimeOptions()
             };
@@ -108,7 +109,7 @@
                 const telecom = plan.telecom;
                 const type = plan.contractType;
                 const amount = plan.planAmount;
-                const zeroMonths = ["3", "4", "8", "9", "13", "16", "19", "30"];
+                const zeroMonths = ["3", "4", "5", "6", "7", "10", "17", "30"];
                 if (zeroMonths.includes(month)) return "0";
 
                 if (month === "24") {
@@ -353,10 +354,12 @@
                             isFinanceMode ? e(React.Fragment, null,
                                 e("div", { className: "md:col-span-2 grid grid-cols-2 gap-4" },
                                     e(SelectField, { label: "地區", name: "region", optionsList: options.financeRegions, value: currentData.region, customValue: currentData.regionCustom, onChange: handleInputChange, isPrimary: true }),
-                                    mode === 'double_refund' ? e(SelectField, { label: "退款金額", name: "refundAmount", optionsList: options.refundAmounts, value: currentData.refundAmount, customValue: currentData.refundAmountCustom, onChange: handleInputChange, isPrimary: true }) : e(SelectField, { label: "入帳月份", name: "ispMonths", optionsList: options.financeMonths, value: currentData.ispMonths, customValue: currentData.ispMonthsCustom, onChange: handleInputChange, isPrimary: true })
+                                    mode === 'double_refund' 
+                                        ? e(SelectField, { label: "退款金額", name: "refundAmount", optionsList: options.refundAmounts, value: currentData.refundAmount, customValue: currentData.refundAmountCustom, onChange: handleInputChange, isPrimary: true }) 
+                                        : e(SelectField, { label: "入帳月份", name: "ispMonths", optionsList: options.ispRenewMonths, value: currentData.ispMonths, customValue: currentData.ispMonthsCustom, onChange: handleInputChange, isPrimary: true })
                                 ),
                                 mode === 'double_refund' && e("div", { className: "md:col-span-2" },
-                                    e(SelectField, { label: "重入帳月份", name: "ispMonths", optionsList: options.financeMonths, value: currentData.ispMonths, customValue: currentData.ispMonthsCustom, onChange: handleInputChange, isPrimary: true })
+                                    e(SelectField, { label: "重入帳月份", name: "ispMonths", optionsList: options.doubleRefundMonths, value: currentData.ispMonths, customValue: currentData.ispMonthsCustom, onChange: handleInputChange, isPrimary: true })
                                 ),
                                 e("div", { className: "md:col-span-2 grid grid-cols-2 gap-4" },
                                     e("div", null, e("label", { className: "text-xs font-black text-slate-400 block mb-1" }, "社區名稱"), e("input", { name: "buildingName", value: currentData.buildingName, onChange: handleInputChange, className: "w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-input font-bold outline-none focus:border-[#14ccb9]" })),
